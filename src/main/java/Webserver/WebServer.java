@@ -1,4 +1,4 @@
-package main.java;
+package Webserver;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,7 +10,8 @@ public class WebServer {
             while (true) {
                 Socket socket = ss.accept();
                 Request request = new Request();
-                request.readRequest(socket);
+                Thread thread = new Thread(new WebThread(socket, request));
+                thread.start();
                 System.out.println(request.getRequestLine());
                 System.out.println(request.getHeaders().get("Content-Length"));
                 if (request.getBody() != null && request.getBody().length != 0) {

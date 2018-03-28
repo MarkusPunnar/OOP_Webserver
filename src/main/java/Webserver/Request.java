@@ -1,4 +1,4 @@
-package main.java;
+package Webserver;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
