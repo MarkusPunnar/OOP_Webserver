@@ -45,12 +45,13 @@ public class Request {
             if (headers.get("Content-Length") != null) {
                 int bodyLength = Integer.parseInt(headers.get("Content-Length"));
                 body = new byte[bodyLength];
-                int read = bf.read();
-                int bytesRead = 1;
+                //int read = bf.read();
+                int read = 0;
+                int bytesRead = 0;
                 while(read != -1 && bytesRead != bodyLength) {
-                    body[bytesRead - 1] = (byte) read;
-                    bytesRead++;
                     read = bf.read();
+                    body[bytesRead] = (byte) read;
+                    bytesRead++;
                 }
             }
         } finally {
