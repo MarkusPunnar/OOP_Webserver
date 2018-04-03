@@ -17,7 +17,7 @@ public class Response {
     private List<String> headers = new ArrayList<>();
     private byte[] body;
     private Request request;
-    private final byte[] finalBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
+    private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
 
     public Response(File directory, Request request) {
         this.directory = directory;
@@ -42,6 +42,7 @@ public class Response {
         if (fileName.equals("\\")) {
             fileName = "\\index.html";
         }
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
         String filePathString = directory.toString() + fileName;
         Path filePath = Paths.get(filePathString);
         if (!Files.exists(filePath)) {
@@ -49,7 +50,13 @@ public class Response {
         } else {
             statusLine = "HTTP/1.1 200 OK\r\n";
             body = Files.readAllBytes(filePath);
-            headers.add("Content-Length: " + body.length);
+            headers.add("Content-Length: " + body.length + "\r\n");
+            if (extension.equals("txt")) {
+                headers.add("Content-Type: text/plain\r\n");
+            }
+            else if (extension.equals("html")) {
+                headers.add("Content-Type: text/html\r\n");
+            }
         }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(statusLine.getBytes("UTF-8"));
