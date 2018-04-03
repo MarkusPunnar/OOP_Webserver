@@ -16,7 +16,7 @@ public class Request {
 
 
     public void readRequest(Socket socket) throws Exception {
-        try (BufferedInputStream bf = new BufferedInputStream(socket.getInputStream())) {
+        BufferedInputStream bf = new BufferedInputStream(socket.getInputStream());
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             byte[] buf = new byte[1024];
             boolean finished = false;
@@ -45,7 +45,6 @@ public class Request {
             if (headers.get("Content-Length") != null) {
                 int bodyLength = Integer.parseInt(headers.get("Content-Length"));
                 body = new byte[bodyLength];
-                //int read = bf.read();
                 int read = 0;
                 int bytesRead = 0;
                 while(read != -1 && bytesRead != bodyLength) {
@@ -54,10 +53,7 @@ public class Request {
                     bytesRead++;
                 }
             }
-        } finally {
-            socket.close();
         }
-    }
 
     public String getRequestLine() {
         return requestLine;
