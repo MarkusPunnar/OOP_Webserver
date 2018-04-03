@@ -8,6 +8,7 @@ public class WebServer {
     public static void main(String[] args) throws Exception {
         final int portNumber = 1337;
         try (ServerSocket ss = new ServerSocket(portNumber)) {
+            System.out.println("Socket successfully initialized");
             while (true) {
                 File directory = new File(args[0]);
                 if (!directory.isDirectory()) {
