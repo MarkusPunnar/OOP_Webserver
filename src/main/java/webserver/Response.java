@@ -69,7 +69,6 @@ public class Response {
 
     public void postResponse(Socket socket, String fileName) throws IOException {
         Path filePath = Paths.get(directory.toString() + fileName);
-        System.out.println(new String(request.getBody()));
         if (fileName.equals("\\")) {
             statusLine = "HTTP/1.1 400 Bad Request\r\n";
         } else {

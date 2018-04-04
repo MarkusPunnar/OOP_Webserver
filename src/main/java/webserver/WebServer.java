@@ -7,11 +7,10 @@ import java.net.Socket;
 public class WebServer {
     public static void main(String[] args) throws Exception {
         final int portNumber = 1337;
-        try {
-            System.out.println("Server file directory set as " + args[0]);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        if (args.length == 0) {
             throw new RuntimeException("Missing command line argument for server file directory");
         }
+        System.out.println("Server file directory set as " + args[0]);
         try (ServerSocket ss = new ServerSocket(portNumber)) {
             System.out.println("Socket successfully initialized");
             while (true) {
