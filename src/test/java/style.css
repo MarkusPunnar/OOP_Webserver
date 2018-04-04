@@ -1,7 +1,19 @@
 ﻿p{
-font-family:Helvetica;
+    font-family:Helvetica;
+    text-align: center;
 }
 h1{
-font-size:100px;
-float:center;
+    font-size: 100px;
+    text-align: center;
+}
+body {
+    color: lightgreen;
+    background-color: black;
+}
+#footer {
+    text-align: center;
+    font-family: cursive;
+}
+button {
+    float: right;
 }
