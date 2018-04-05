@@ -7,10 +7,13 @@ public class WebServer {
 
     public static void main(String[] args) throws IOException {
         try (ServerSocket ss = new ServerSocket(1337)) {
+        	String fileName;
             if (args.length == 0) {
-                throw new RuntimeException("Missing command line argument for server file directory");
+                fileName = ".\\src\\test\\java";
+            } else {
+	            fileName = args[0];
+
             }
-            String fileName = args[0];
             System.out.println("Server file directory set as " + fileName);
             System.out.println("Ready for clients to connect");
             while (true) {
