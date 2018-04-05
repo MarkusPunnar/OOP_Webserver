@@ -16,6 +16,7 @@ public class PostResponse {
         List<String> headers = new ArrayList<>();
         byte[] body = null;
         Path filePath = Paths.get(directory.toString() + fileName);
+        System.out.println(filePath.toString());
         if (fileName.equals("\\")) {
             statusLine = "HTTP/1.1 400 Bad Request\r\n";
         } else if (fileName.equals("form.html")) {
@@ -26,7 +27,7 @@ public class PostResponse {
             } else {
                 statusLine = "HTTP/1.1 201 Created\r\n";
             }
-            try (FileOutputStream fos = new FileOutputStream(directory.toString() + fileName)) {
+            try (FileOutputStream fos = new FileOutputStream(filePath.toString())) {
                 fos.write(request.getBody());
             }
         }

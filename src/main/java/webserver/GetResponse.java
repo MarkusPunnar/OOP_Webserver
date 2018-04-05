@@ -15,26 +15,18 @@ public class GetResponse {
         List<String> headers = new ArrayList<>();
         byte[] body = null;
         Path filePath;
-        String extension;
         if (fileName.equals("\\")) {
-            fileName = Paths.get("resources","defaultwebsite","index.html").toString();
+            fileName = Paths.get("src","main","resources","defaultwebsite","index.html").toString();
             filePath = Paths.get(fileName);
-            extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-        } /*else {
-            extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-            if (extension.equals("css")) {
-                filePath = Paths.get("src","main","css","style.css");
-            } else {
-                filePath = Paths.get(directory.toString() + fileName);
-            }
         }
-
-*/
-        else {
+        else if (fileName.endsWith("!web")) {
+            filePath = Paths.get("src", "main", "resources", "defaultwebsite", fileName.split("!")[0]);
+            fileName = filePath.toString();
+        }
+        else{
             filePath = Paths.get(directory.toString() + fileName);
-            extension = fileName.substring(fileName.lastIndexOf(".") + 1);
         }
-        System.out.println(filePath.toString());
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
         if (Files.exists(filePath)) {
             statusLine = "HTTP/1.1 200 OK\r\n";
             body = Files.readAllBytes(filePath);
@@ -46,7 +38,7 @@ public class GetResponse {
             }
         } else {
             statusLine = "HTTP/1.1 404 Not Found\r\n";
-            fileName = Paths.get("resources", "defaultwebsite", "404page.html").toString();
+            fileName = Paths.get("src","main","resources","defaultwebsite", "404page.html").toString();
             body = Files.readAllBytes(Paths.get(fileName));
         }
         return new Response(statusLine, headers, body);
