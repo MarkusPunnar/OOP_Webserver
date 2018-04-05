@@ -1,27 +1,31 @@
 package webserver;
-
 import java.io.File;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Paths;
 
 public class WebServer {
 
     public static void main(String[] args) {
         try (ServerSocket ss = new ServerSocket(1337)) {
+        	String fileName;
             if (args.length == 0) {
-                throw new RuntimeException("Missing command line argument for server file directory");
+                fileName = Paths.get("src", "test", "java").toString();
+            } else {
+	            fileName = args[0];
+
             }
-            String dirName = args[0];
-            File directory = new File(dirName);
+            File directory = new File(fileName);
             if (!directory.isDirectory()) {
                 throw new RuntimeException("Server file directory not found");
             }
-            System.out.println("Server file directory set as " + dirName);
-            System.out.println("Ready for clients to connect.");
+            System.out.println("Server file directory set as " + fileName);
+            System.out.println("Ready for clients to connect");
             while (true) {
-                Socket socket = ss.accept();
-                System.out.println("Connection accepted");
-                Thread thread = new Thread(new Threads(directory, socket));
+                Socket s = ss.accept();
+                Threads threads = new Threads(directory, s);
+                Thread thread = new Thread(threads);
                 thread.start();
             }
         } catch (Exception e) {
