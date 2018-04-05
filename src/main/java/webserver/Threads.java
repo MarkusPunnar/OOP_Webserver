@@ -30,12 +30,12 @@ public class Threads implements Runnable {
             switch (request.getRequestMethod()) {
                 case "GET":
                     GetResponse getResponse = new GetResponse();
-                    getResponse.getResponse(request.getRequestURI(), directory);
-                    response = getResponse.getResponse();
+                    response = getResponse.getResponse(request.getRequestURI(), directory);
                     break;
                 case "POST": {
                     PostResponse postResponse = new PostResponse();
-                    postResponse.postResponse(request.getRequestURI(), directory, request);
+                    response = postResponse.postResponse(request.getRequestURI(), directory, request);
+                    break;
                 }
                 default: {
                     response = new Response("HTTP/1.1 500 Internal Server Error", null, null);

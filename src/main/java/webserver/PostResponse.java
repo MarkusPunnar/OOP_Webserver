@@ -11,20 +11,16 @@ import java.util.List;
 
 public class PostResponse {
 
-    private Response response;
-
-    public void postResponse(String fileName, File directory, Request request) throws IOException {
+    public Response postResponse(String fileName, File directory, Request request) throws IOException {
         String statusLine;
         List<String> headers = new ArrayList<>();
         byte[] body = null;
         Path filePath = Paths.get(directory.toString() + fileName);
         if (fileName.equals("\\")) {
             statusLine = "HTTP/1.1 400 Bad Request\r\n";
-        }
-        else if(fileName.equals("form.html")){
+        } else if (fileName.equals("form.html")) {
             statusLine = "HTTP/1.1 200 OK\r\n";
-        }
-        else {
+        } else {
             if (Files.exists(filePath)) {
                 statusLine = "HTTP/1.1 200 OK\r\n";
             } else {
@@ -34,10 +30,6 @@ public class PostResponse {
                 fos.write(request.getBody());
             }
         }
-        response = new Response(statusLine, headers, body);
-    }
-
-    public Response getResponse() {
-        return response;
+        return new Response(statusLine, headers, body);
     }
 }

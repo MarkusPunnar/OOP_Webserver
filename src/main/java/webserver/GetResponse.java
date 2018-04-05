@@ -10,9 +10,7 @@ import java.util.List;
 
 public class GetResponse {
 
-    private Response response;
-
-    public void getResponse(String fileName, File directory) throws IOException {
+    public Response getResponse(String fileName, File directory) throws IOException {
         String statusLine;
         List<String> headers = new ArrayList<>();
         byte[] body = null;
@@ -33,10 +31,6 @@ public class GetResponse {
         } else {
             statusLine = "HTTP/1.1 404 Not Found\r\n";
         }
-        response = new Response(statusLine, headers, body);
-    }
-
-    public Response getResponse() {
-        return response;
+        return new Response(statusLine, headers, body);
     }
 }
