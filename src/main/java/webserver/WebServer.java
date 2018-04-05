@@ -11,7 +11,7 @@ public class WebServer {
         try (ServerSocket ss = new ServerSocket(1337)) {
         	String dirName;
             if (args.length == 0) {
-                dirName = Paths.get("src", "test", "java").toString();
+                dirName = Paths.get("resources").toString();
             } else {
 	            dirName = args[0];
 

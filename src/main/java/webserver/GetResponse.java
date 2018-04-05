@@ -14,11 +14,27 @@ public class GetResponse {
         String statusLine;
         List<String> headers = new ArrayList<>();
         byte[] body = null;
+        Path filePath;
+        String extension;
         if (fileName.equals("\\")) {
-            fileName = "\\index.html";
+            fileName = Paths.get("resources","defaultwebsite","index.html").toString();
+            filePath = Paths.get(fileName);
+            extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+        } /*else {
+            extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+            if (extension.equals("css")) {
+                filePath = Paths.get("src","main","css","style.css");
+            } else {
+                filePath = Paths.get(directory.toString() + fileName);
+            }
         }
-        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-        Path filePath = Paths.get(directory.toString() + fileName);
+
+*/
+        else {
+            filePath = Paths.get(directory.toString() + fileName);
+            extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+        }
+        System.out.println(filePath.toString());
         if (Files.exists(filePath)) {
             statusLine = "HTTP/1.1 200 OK\r\n";
             body = Files.readAllBytes(filePath);
@@ -30,6 +46,8 @@ public class GetResponse {
             }
         } else {
             statusLine = "HTTP/1.1 404 Not Found\r\n";
+            fileName = Paths.get("resources", "defaultwebsite", "404page.html").toString();
+            body = Files.readAllBytes(Paths.get(fileName));
         }
         return new Response(statusLine, headers, body);
     }
