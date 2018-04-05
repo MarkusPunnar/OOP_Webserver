@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <title>My test page</title>
       <style>
+	p{
+		text-align: center;
+	}
           form {
               /* Just to center the form on the page */
               margin: 0 auto;
@@ -64,8 +67,8 @@
       </style>
   </head>
   <body>
-    <p>This is my page</p>
-    <form action="/my-handling-form-page" method="post">
+    <p>Feedback</p>
+    <form action="/formResults.txt" method="post">
         <div>
             <label for="name">Name:</label>
             <input type="text" id="name" name="user_name">

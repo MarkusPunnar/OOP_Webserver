@@ -20,7 +20,11 @@ public class PostResponse {
         Path filePath = Paths.get(directory.toString() + fileName);
         if (fileName.equals("\\")) {
             statusLine = "HTTP/1.1 400 Bad Request\r\n";
-        } else {
+        }
+        else if(fileName.equals("form.html")){
+            statusLine = "HTTP/1.1 200 OK\r\n";
+        }
+        else {
             if (Files.exists(filePath)) {
                 statusLine = "HTTP/1.1 200 OK\r\n";
             } else {
