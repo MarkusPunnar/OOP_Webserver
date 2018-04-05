@@ -2,6 +2,7 @@ package webserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Paths;
 
 public class WebServer {
 
@@ -9,7 +10,7 @@ public class WebServer {
         try (ServerSocket ss = new ServerSocket(1337)) {
         	String fileName;
             if (args.length == 0) {
-                fileName = ".\\src\\test\\java";
+                fileName = Paths.get("src", "test", "java").toString();
             } else {
 	            fileName = args[0];
 
