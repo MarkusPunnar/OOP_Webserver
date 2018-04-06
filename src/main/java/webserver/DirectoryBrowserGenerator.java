@@ -10,9 +10,12 @@ public class DirectoryBrowserGenerator {
     private String dirName;
 
     public DirectoryBrowserGenerator(String dirName) throws IOException {
-        Path defaultWebSiteDir = Paths.get("src","main","resources","defaultwebsite","filebrowser");
-        deleteDirectory(new File(defaultWebSiteDir.toString()));
-        Files.createDirectory(defaultWebSiteDir);
+        Path defaultWebSiteDirPath = Paths.get("src","main","resources","defaultwebsite","filebrowser");
+        File defaultWebSiteDir = new File(defaultWebSiteDirPath.toString());
+        if (defaultWebSiteDir.isDirectory() && defaultWebSiteDir.exists()) {
+            deleteDirectory(defaultWebSiteDir);
+        }
+        Files.createDirectory(defaultWebSiteDirPath);
         update();
     }
 

@@ -66,8 +66,8 @@ public class Threads implements Runnable {
         byte[] body = null;
         byte[] buf = new byte[1024];
         boolean finished = false;
-        int usefulBytes = 0;
         while (!finished) {
+            int usefulBytes = 0;
             for (int i = 0; i < 1024; i++) {
                 buf[i] = (byte) bf.read();
                 usefulBytes++;
