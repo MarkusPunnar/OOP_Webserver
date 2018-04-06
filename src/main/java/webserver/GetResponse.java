@@ -16,14 +16,19 @@ public class GetResponse {
         byte[] body = null;
         Path filePath;
         if (fileName.equals("\\")) {
-            fileName = Paths.get("src","main","resources","defaultwebsite","index.html").toString();
-            filePath = Paths.get(fileName);
+            if (new File(directory.toString() + File.separatorChar + "index.html").exists()) {
+                filePath = Paths.get(directory.toString(), "index.html");
+                fileName = filePath.toString();
+            } else {
+                filePath = Paths.get("src","main","resources","defaultwebsite","index.html");
+                fileName = filePath.toString();
+            }
         }
-        else if (fileName.endsWith("!web")) {
-            filePath = Paths.get("src", "main", "resources", "defaultwebsite", fileName.split("!")[0]);
+        else if (fileName.startsWith(File.separatorChar + "defweb/")) {
+            filePath = Paths.get("src", "main", "resources", "defaultwebsite", fileName.split("/")[1]);
             fileName = filePath.toString();
         }
-        else{
+        else {
             filePath = Paths.get(directory.toString() + fileName);
         }
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
