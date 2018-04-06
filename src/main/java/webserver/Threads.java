@@ -14,12 +14,14 @@ public class Threads implements Runnable {
 
     private Socket socket;
     private File directory;
+    private DirectoryBrowserGenerator dbg;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
-    public Threads(File directory, Socket socket) {
+    public Threads(File directory, Socket socket, DirectoryBrowserGenerator dbg) {
         this.socket = socket;
         this.directory = directory;
+        this.dbg = dbg;
     }
 
     @Override
@@ -35,6 +37,7 @@ public class Threads implements Runnable {
                 case "POST": {
                     PostResponse postResponse = new PostResponse();
                     response = postResponse.postResponse(request.getRequestURI(), directory, request);
+                    dbg.update();
                     break;
                 }
                 default: {

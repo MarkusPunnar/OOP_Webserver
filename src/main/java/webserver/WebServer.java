@@ -14,9 +14,10 @@ public class WebServer {
                 dirName = Paths.get("src","main","resources","user").toString();
             } else {
 	            dirName = args[0];
-
             }
             File directory = new File(dirName);
+            DirectoryBrowserGenerator dbg = new DirectoryBrowserGenerator(dirName);
+            dbg.update();
             if (!directory.isDirectory()) {
                 throw new RuntimeException("Server file directory not found");
             }
@@ -24,7 +25,7 @@ public class WebServer {
             System.out.println("Ready for clients to connect");
             while (true) {
                 Socket socket = ss.accept();
-                Thread thread = new Thread(new Threads(directory, socket));
+                Thread thread = new Thread(new Threads(directory, socket, dbg));
                 thread.start();
             }
         } catch (Exception e) {
