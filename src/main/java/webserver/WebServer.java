@@ -17,7 +17,6 @@ public class WebServer {
             }
             File directory = new File(dirName);
             DirectoryBrowserGenerator dbg = new DirectoryBrowserGenerator(dirName);
-            dbg.update();
             if (!directory.isDirectory()) {
                 throw new RuntimeException("Server file directory not found");
             }
