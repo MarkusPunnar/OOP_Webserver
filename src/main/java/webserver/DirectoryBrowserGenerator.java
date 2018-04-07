@@ -13,21 +13,12 @@ public class DirectoryBrowserGenerator {
         Path defaultWebSiteDirPath = Paths.get("src","main","resources","defaultwebsite","filebrowser");
         File defaultWebSiteDir = new File(defaultWebSiteDirPath.toString());
         if (defaultWebSiteDir.isDirectory() && defaultWebSiteDir.exists()) {
-            deleteDirectory(defaultWebSiteDir);
+            RecursiveDeleter.deleteDirectory(defaultWebSiteDir);
         }
         Files.createDirectory(defaultWebSiteDirPath);
         update();
     }
 
-    public boolean deleteDirectory(File deletable) {
-        File[] content = deletable.listFiles();
-        if (content != null) {
-            for (File file : content) {
-                deleteDirectory(file);
-            }
-        }
-        return deletable.delete();
-    }
 
     public void update() {
 

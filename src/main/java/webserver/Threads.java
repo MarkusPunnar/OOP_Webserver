@@ -14,14 +14,12 @@ public class Threads implements Runnable {
 
     private Socket socket;
     private File directory;
-    private DirectoryBrowserGenerator dbg;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
-    public Threads(File directory, Socket socket, DirectoryBrowserGenerator dbg) {
+    public Threads(File directory, Socket socket) {
         this.socket = socket;
         this.directory = directory;
-        this.dbg = dbg;
     }
 
     @Override
@@ -37,9 +35,13 @@ public class Threads implements Runnable {
                 case "POST": {
                     PostResponse postResponse = new PostResponse();
                     response = postResponse.postResponse(request.getRequestURI(), directory, request);
-                    dbg.update();
                     break;
                 }
+	            case "DELETE": {
+	            	DeleteResponse deleteResponse = new DeleteResponse();
+	            	response = deleteResponse.deleteResponse(request.getRequestURI(), directory);
+	            	break;
+	            }
                 default: {
                     response = new Response("HTTP/1.1 500 Internal Server Error", null, null);
                 }
