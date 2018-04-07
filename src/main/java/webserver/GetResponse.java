@@ -20,8 +20,11 @@ public class GetResponse {
                 filePath = Paths.get(directory.toString(), "index.html");
                 fileName = filePath.toString();
             } else {
-                filePath = Paths.get("src","main","resources","defaultwebsite","index.html");
-                fileName = filePath.toString();
+                //filePath = Paths.get("src","main","resources","defaultwebsite","index.html");
+                //fileName = filePath.toString();
+	            filePath = directory.toPath();
+	            fileName = filePath.toString();
+
             }
         }
         else if (fileName.startsWith(File.separatorChar + "defweb/")) {
@@ -31,11 +34,22 @@ public class GetResponse {
         else {
             filePath = Paths.get(directory.toString() + fileName);
         }
-        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
         if (Files.exists(filePath)) {
             statusLine = "HTTP/1.1 200 OK\r\n";
-            body = Files.readAllBytes(filePath);
+            if (Files.isDirectory(filePath)) {
+            	if (new File(filePath.toString() + File.separatorChar + "index.html").exists()) {
+            		filePath = Paths.get(filePath.toString(), "index.html");
+            		fileName = filePath.toString();
+	            } else {
+            		DirectoryBrowserGenerator.generate(filePath.toFile(), directory);
+            		body = Files.readAllBytes(Paths.get("src","main","resources","defaultwebsite","generatedResponse.html"));
+	            }
+            }
+            if (body == null) {
+	            body = Files.readAllBytes(filePath);
+            }
             headers.add("Content-Length: " + body.length + "\r\n");
+	        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
             if (extension.equals("txt")) {
                 headers.add("Content-Type: text/plain\r\n");
             } else if (extension.equals("html")) {

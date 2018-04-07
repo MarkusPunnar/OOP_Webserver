@@ -18,7 +18,8 @@ public class Threads implements Runnable {
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
-    public Threads(File directory, Socket socket) {
+
+	public Threads(File directory, Socket socket) {
         this.socket = socket;
         this.directory = directory;
     }
