@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,9 +34,17 @@ public class Threads implements Runnable {
                     response = getResponse.getResponse(request.getRequestURI(), directory);
                     break;
                 case "POST": {
-                    PostResponse postResponse = new PostResponse();
-                    response = postResponse.postResponse(request.getRequestURI(), directory, request);
-                    break;
+                    if (!request.getRequestURI().equals("defweb/form.txt")) {
+	                    PostResponse postResponse = new PostResponse();
+	                    response = postResponse.postResponse(request.getRequestURI(), directory, request);
+                        break;
+                    }
+                    else {
+                        FormResponse formResponse = new FormResponse();
+                        byte[] data = request.getBody();
+                        response = formResponse.formResponse(data);
+                        break;
+                    }
                 }
 	            case "DELETE": {
 	            	DeleteResponse deleteResponse = new DeleteResponse();

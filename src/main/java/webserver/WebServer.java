@@ -1,6 +1,5 @@
 package webserver;
 import java.io.File;
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Paths;
@@ -17,7 +16,7 @@ public class WebServer {
             }
             File directory = new File(dirName);
             if (!directory.isDirectory()) {
-                throw new RuntimeException("Server file directory not found");
+                throw new RuntimeException("Server file directory not found: " + directory.toString());
             }
             System.out.println("Server file directory set as " + dirName);
             System.out.println("Ready for clients to connect");

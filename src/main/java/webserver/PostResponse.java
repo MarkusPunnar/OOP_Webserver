@@ -19,9 +19,8 @@ public class PostResponse {
         System.out.println(filePath.toString());
         if (fileName.equals("\\")) {
             statusLine = "HTTP/1.1 400 Bad Request\r\n";
-        } else if (fileName.equals("form.html")) {
-            statusLine = "HTTP/1.1 200 OK\r\n";
-        } else {
+        }
+        else {
             if (Files.exists(filePath)) {
                 statusLine = "HTTP/1.1 200 OK\r\n";
             } else {
