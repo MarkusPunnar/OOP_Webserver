@@ -41,8 +41,7 @@ public class GetResponse {
             		filePath = Paths.get(filePath.toString(), "index.html");
             		fileName = filePath.toString();
 	            } else {
-            		DirectoryBrowserGenerator.generate(filePath.toFile(), directory);
-            		body = Files.readAllBytes(Paths.get("src","main","resources","defaultwebsite","generatedResponse.html"));
+            		body = DirectoryBrowserGenerator.generate(filePath.toFile(), directory);
 	            }
             }
             if (body == null) {

@@ -20,7 +20,6 @@ public class WebServer {
             }
             System.out.println("Server file directory set as " + dirName);
             System.out.println("Ready for clients to connect");
-            DirectoryBrowserGenerator.generate(directory,directory);
             while (true) {
                 Socket socket = ss.accept();
                 Thread thread = new Thread(new Threads(directory, socket));
