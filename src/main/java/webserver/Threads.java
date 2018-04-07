@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,10 +36,20 @@ public class Threads implements Runnable {
                     response = getResponse.getResponse(request.getRequestURI(), directory);
                     break;
                 case "POST": {
-                    PostResponse postResponse = new PostResponse();
-                    response = postResponse.postResponse(request.getRequestURI(), directory, request);
-                    dbg.update();
-                    break;
+                    if(!request.getRequestURI().equals("defweb/form.txt")) {
+                        directory = Paths.get("src", "main", "resources", "defaultwebsite").toFile();
+                        PostResponse postResponse = new PostResponse();
+                        response = postResponse.postResponse("\\" + request.getRequestURI().split("/")[1], directory, request);
+                        dbg.update();
+                        break;
+                    }
+                    else{
+                        FormResponse formResponse = new FormResponse();
+                        byte[] data = request.getBody();
+                        response = formResponse.formResponse(data);
+                        dbg.update();
+                        break;
+                    }
                 }
                 default: {
                     response = new Response("HTTP/1.1 500 Internal Server Error", null, null);

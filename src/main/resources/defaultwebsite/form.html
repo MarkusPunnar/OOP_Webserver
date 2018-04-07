@@ -51,10 +51,14 @@
       </head>
   <body>
     <p>Feedback</p>
-    <form method="post">
+    <form enctype="multipart/form-data" action="/form/test" method="post">
         <div>
             <label for="name">Name:</label>
             <input type="text" id="name" name="user_name">
+        </div>
+        <div>
+            <label for="mail">Email:</label>
+            <input type="text" id="mail" name="user_email">
         </div>
         <div>
             <label for="msg">Message:</label>
