@@ -15,13 +15,21 @@ public class DirectoryBrowserGenerator {
 			    "<body>\n";
 
 	    File[] filesInGivenDir = givenDir.listFiles();
+	    if (!givenDir.equals(defaultDir)) {
+	    	File parentFile = givenDir.getParentFile();
+	    	if (parentFile.equals(defaultDir)) {
+			    htmlContent = htmlContent + "<a href=\"http://localhost:1337/" + "\">" + "..." + "</a> \n <br>";
+		    } else {
+			    htmlContent = htmlContent + "<a href=\"http://localhost:1337/" + givenDir.getParentFile().getName() + "\">" + "..." + "</a> \n <br>";
+		    }
+	    }
 	    if (filesInGivenDir.length > 0) {
 		    for (File file : filesInGivenDir) {
-			    htmlContent = htmlContent + "<a href=" + "\"" + "http://localhost:1337/";
+			    htmlContent = htmlContent + "<a href=\"http://localhost:1337/";
 			    if (givenDir.equals(defaultDir)) {
 				    htmlContent = htmlContent + file.getName() + "\"" +">" + file.getName() + "</a>\n <br>";
 			    } else {
-				    htmlContent = htmlContent + givenDir.getName() + "/" + file.getName() + "\"" +">" + file.getName() + "</a>\n <br>";
+				    htmlContent = htmlContent + givenDir.getName() + "/" + file.getName() + "\">" + file.getName() + "</a>\n <br>";
 			    }
 		    }
 	    } else {
