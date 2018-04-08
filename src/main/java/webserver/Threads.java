@@ -35,13 +35,11 @@ public class Threads implements Runnable {
                     response = getResponse.getResponse(request.getRequestURI(), directory);
                     break;
                 case "POST": {
-                    if (request.getRequestURI().equals("defweb/form.txt")) {
-                    	/*
-	                    FormResponse formResponse = new FormResponse();
-	                    byte[] data = request.getBody();
-	                    response = formResponse.formResponse(data);
-	                    break;
-	                    */
+                    if (request.getRequestURI().equals("\\form/test")) {
+                        FormResponse formResponse = new FormResponse();
+                        byte[] data = request.getBody();
+                        response = formResponse.formResponse(data);
+                        break;
                     }
                     else {
 	                    PostResponse postResponse = new PostResponse();
