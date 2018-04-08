@@ -17,6 +17,10 @@ public class DirectoryBrowserGenerator {
 		    	parentDirname = relativeDirname;
 		    }
 	    }
+	    if (givenDirPathSplit.length - defaultDirPathSplit.length == 1) {
+	    	parentDirname = "/";
+	    }
+
 
     	String htmlContent = "<!DOCTYPE html>\n" +
 			    "<html lang=\"en\">\n" +
@@ -28,11 +32,11 @@ public class DirectoryBrowserGenerator {
 
 	    File[] filesInGivenDir = givenDir.listFiles();
 	    if (!givenDir.equals(defaultDir)) {
-		    htmlContent = htmlContent + "<a href=\"http://localhost:1337" + parentDirname + "\">" + "..." + "</a> \n <br>";
+		    htmlContent = htmlContent + "<a href=\"" + parentDirname + "\">" + "..." + "</a> \n <br>";
 	    }
 	    if (filesInGivenDir.length > 0) {
 		    for (File file : filesInGivenDir) {
-			    htmlContent = htmlContent + "<a href=\"http://localhost:1337";
+			    htmlContent = htmlContent + "<a href=\"";
 			    htmlContent = htmlContent + relativeDirname + "/" + file.getName() + "\">" + file.getName() + "</a>\n <br>";
 
 		    }
