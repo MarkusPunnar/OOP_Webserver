@@ -6,6 +6,18 @@ import java.io.IOException;
 public class DirectoryBrowserGenerator {
 
     public static byte[] generate(File givenDir, File defaultDir) throws IOException {
+    	String relativeDirname = "";
+    	String parentDirname = "";
+    	String[] givenDirPathSplit = givenDir.getAbsolutePath().split("\\\\");
+    	String[] defaultDirPathSplit = defaultDir.getAbsolutePath().split("\\\\");
+
+	    for (int i = defaultDirPathSplit.length; i < givenDirPathSplit.length; i++) {
+		    relativeDirname = relativeDirname + "/" + givenDirPathSplit[i];
+		    if (i == givenDirPathSplit.length-2) {
+		    	parentDirname = relativeDirname;
+		    }
+	    }
+
     	String htmlContent = "<!DOCTYPE html>\n" +
 			    "<html lang=\"en\">\n" +
 			    "<head>\n" +
@@ -16,21 +28,13 @@ public class DirectoryBrowserGenerator {
 
 	    File[] filesInGivenDir = givenDir.listFiles();
 	    if (!givenDir.equals(defaultDir)) {
-	    	File parentFile = givenDir.getParentFile();
-	    	if (parentFile.equals(defaultDir)) {
-			    htmlContent = htmlContent + "<a href=\"http://localhost:1337/" + "\">" + "..." + "</a> \n <br>";
-		    } else {
-			    htmlContent = htmlContent + "<a href=\"http://localhost:1337/" + givenDir.getParentFile().getName() + "\">" + "..." + "</a> \n <br>";
-		    }
+		    htmlContent = htmlContent + "<a href=\"http://localhost:1337" + parentDirname + "\">" + "..." + "</a> \n <br>";
 	    }
 	    if (filesInGivenDir.length > 0) {
 		    for (File file : filesInGivenDir) {
-			    htmlContent = htmlContent + "<a href=\"http://localhost:1337/";
-			    if (givenDir.equals(defaultDir)) {
-				    htmlContent = htmlContent + file.getName() + "\"" +">" + file.getName() + "</a>\n <br>";
-			    } else {
-				    htmlContent = htmlContent + givenDir.getName() + "/" + file.getName() + "\">" + file.getName() + "</a>\n <br>";
-			    }
+			    htmlContent = htmlContent + "<a href=\"http://localhost:1337";
+			    htmlContent = htmlContent + relativeDirname + "/" + file.getName() + "\">" + file.getName() + "</a>\n <br>";
+
 		    }
 	    } else {
 	    	htmlContent = htmlContent + "<p>Empty directory</p>\n";
