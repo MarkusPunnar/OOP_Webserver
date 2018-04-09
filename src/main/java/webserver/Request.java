@@ -21,6 +21,18 @@ public class Request {
         this.body = body;
     }
 
+    public Map<String, String> bodyToForm() throws UnsupportedEncodingException {
+        String sdata = new String(this.body, StandardCharsets.UTF_8);
+        System.out.println(sdata);
+        String[] adata = sdata.split("&");
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (String sone : adata) {
+            String[] jupid = sone.split("=");
+            map.put(URLDecoder.decode(jupid[0], "UTF-8"), URLDecoder.decode(jupid[1], "UTF-8"));
+        }
+        return map;
+    }
+
     public Map<String, String> getHeaders() {
         return headers;
     }
@@ -37,16 +49,5 @@ public class Request {
         return requestURI;
     }
 
-    public Map<String, String> bodyToForm() throws UnsupportedEncodingException {
-        String sdata = new String(this.body, StandardCharsets.UTF_8);
-        System.out.println(sdata);
-        String[] adata = sdata.split("&");
-        HashMap<String, String> map = new HashMap<String, String>();
-        for (String sone : adata) {
-            String[] jupid = sone.split("=");
-            map.put(URLDecoder.decode(jupid[0], "UTF-8"), URLDecoder.decode(jupid[1], "UTF-8"));
-        }
-        return map;
-    }
 }
 
