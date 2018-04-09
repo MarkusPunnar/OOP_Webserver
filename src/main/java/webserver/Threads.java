@@ -3,7 +3,6 @@ package webserver;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -30,24 +29,24 @@ public class Threads implements Runnable {
             Request request = readRequest(socket);
             Response response;
             switch (request.getRequestMethod()) {
-                    case "GET":
-                        GetResponse getResponse = new GetResponse(Paths.get(directory));
-                        response = getResponse.getResponse(request);
+                case "GET":
+                    GetResponse getResponse = new GetResponse(Paths.get(directory));
+                    response = getResponse.getResponse(request);
+                    break;
+                case "POST":
+                    if (request.getRequestURI().equals("\\form/test")) {
+                        FormResponse formResponse = new FormResponse();
+                        response = formResponse.formResponse(request);
                         break;
-                    case "POST":
-                        if (request.getRequestURI().equals("\\form/test")) {
-                            FormResponse formResponse = new FormResponse();
-                            response = formResponse.formResponse(request);
-                            break;
-                        } else {
-                            PostResponse postResponse = new PostResponse(Paths.get(directory));
-                            response = postResponse.postResponse(request);
-                            break;
-                        }
-                    case "DELETE":
-                        DeleteResponse deleteResponse = new DeleteResponse(Paths.get(directory));
-                        response = deleteResponse.deleteResponse(request);
+                    } else {
+                        PostResponse postResponse = new PostResponse(Paths.get(directory));
+                        response = postResponse.postResponse(request);
                         break;
+                    }
+                case "DELETE":
+                    DeleteResponse deleteResponse = new DeleteResponse(Paths.get(directory));
+                    response = deleteResponse.deleteResponse(request);
+                    break;
                 default: {
                     response = new Response(500, null, null);
                 }
@@ -115,28 +114,22 @@ public class Threads implements Runnable {
 
     private String constructStatusLine(Response response) {
         int statusCode = response.getStatusCode();
-        String statusLine;
+        return "HTTP/1.1 " + statusCode + " " + findProperStatusMessage(statusCode);
+    }
+
+    private String findProperStatusMessage(int statusCode) {
         switch (statusCode) {
-            case 200: {
-                statusLine = "HTTP/1.1 " + statusCode + " OK";
-                break;
-            }
-            case 201: {
-                statusLine = "HTTP/1.1 " + statusCode + " Created";
-                break;
-            }
-            case 400: {
-                statusLine = "HTTP/1.1 " + statusCode + " Bad Request";
-                break;
-            }
-            case 404: {
-                statusLine = "HTTP/1.1 " + statusCode + " Not Found";
-                break;
-            }
-            default: {
-                statusLine = "HTTP/1.1 " + statusCode + " Internal Server Error";
-            }
+            case 200:
+                return "OK";
+            case 201:
+                return "Created";
+            case 400:
+                return "Bad Request";
+            case 404:
+                return "Not Found";
+            case 500:
+                return "Internal Server Error";
+            default: throw new IllegalArgumentException("Unknown status code.");
         }
-        return statusLine;
     }
 }
