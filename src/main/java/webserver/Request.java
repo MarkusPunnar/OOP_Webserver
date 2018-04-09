@@ -1,5 +1,9 @@
 package webserver;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Request {
@@ -15,7 +19,6 @@ public class Request {
         this.requestURI = requestURI;
         this.headers = headers;
         this.body = body;
-
     }
 
     public Map<String, String> getHeaders() {
@@ -32,6 +35,18 @@ public class Request {
 
     public String getRequestURI() {
         return requestURI;
+    }
+
+    public Map<String, String> bodyToForm() throws UnsupportedEncodingException {
+        String sdata = new String(this.body, StandardCharsets.UTF_8);
+        System.out.println(sdata);
+        String[] adata = sdata.split("&");
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (String sone : adata) {
+            String[] jupid = sone.split("=");
+            map.put(URLDecoder.decode(jupid[0], "UTF-8"), URLDecoder.decode(jupid[1], "UTF-8"));
+        }
+        return map;
     }
 }
 

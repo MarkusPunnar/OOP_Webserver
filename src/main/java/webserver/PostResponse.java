@@ -1,6 +1,5 @@
 package webserver;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,25 +10,30 @@ import java.util.List;
 
 public class PostResponse {
 
-    public Response postResponse(String fileName, File directory, Request request) throws IOException {
-        String statusLine;
+    private Path directory;
+
+    public PostResponse(Path directory) {
+        this.directory = directory;
+    }
+
+    public Response postResponse(Request request) throws IOException {
+        String statusCode;
         List<String> headers = new ArrayList<>();
         byte[] body = null;
-        Path filePath = Paths.get(directory.toString() + fileName);
+        Path filePath = Paths.get(directory.toString() + request.getRequestURI());
         System.out.println(filePath.toString());
-        if (fileName.equals("\\")) {
-            statusLine = "HTTP/1.1 400 Bad Request\r\n";
-        }
-        else {
+        if (request.getRequestURI().equals("\\")) {
+            statusCode = "400";
+        } else {
             if (Files.exists(filePath)) {
-                statusLine = "HTTP/1.1 200 OK\r\n";
+                statusCode = "200";
             } else {
-                statusLine = "HTTP/1.1 201 Created\r\n";
+                statusCode = "201";
             }
             try (FileOutputStream fos = new FileOutputStream(filePath.toString())) {
                 fos.write(request.getBody());
             }
         }
-        return new Response(statusLine, headers, body);
+        return new Response(statusCode, headers, body);
     }
 }

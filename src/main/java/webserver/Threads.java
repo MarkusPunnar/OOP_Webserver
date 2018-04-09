@@ -14,12 +14,12 @@ import java.util.Map;
 public class Threads implements Runnable {
 
     private Socket socket;
-    private File directory;
+    private String directory;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
 
-	public Threads(File directory, Socket socket) {
+    public Threads(String directory, Socket socket) {
         this.socket = socket;
         this.directory = directory;
     }
@@ -30,34 +30,30 @@ public class Threads implements Runnable {
             Request request = readRequest(socket);
             Response response;
             switch (request.getRequestMethod()) {
-                case "GET":
-                    GetResponse getResponse = new GetResponse();
-                    response = getResponse.getResponse(request.getRequestURI(), directory);
-                    break;
-                case "POST": {
-                    if (request.getRequestURI().equals("\\form/test")) {
-                        FormResponse formResponse = new FormResponse();
-                        byte[] data = request.getBody();
-                        response = formResponse.formResponse(data);
+                    case "GET":
+                        GetResponse getResponse = new GetResponse(Paths.get(directory));
+                        response = getResponse.getResponse(request);
                         break;
-                    }
-                    else {
-	                    PostResponse postResponse = new PostResponse();
-	                    response = postResponse.postResponse(request.getRequestURI(), directory, request);
-	                    break;
-                    }
-                }
-	            case "DELETE": {
-	            	DeleteResponse deleteResponse = new DeleteResponse();
-	            	response = deleteResponse.deleteResponse(request.getRequestURI(), directory);
-	            	break;
-	            }
+                    case "POST":
+                        if (request.getRequestURI().equals("\\form/test")) {
+                            FormResponse formResponse = new FormResponse();
+                            response = formResponse.formResponse(request);
+                            break;
+                        } else {
+                            PostResponse postResponse = new PostResponse(Paths.get(directory));
+                            response = postResponse.postResponse(request);
+                            break;
+                        }
+                    case "DELETE":
+                        DeleteResponse deleteResponse = new DeleteResponse(Paths.get(directory));
+                        response = deleteResponse.deleteResponse(request);
+                        break;
                 default: {
-                    response = new Response("HTTP/1.1 500 Internal Server Error", null, null);
+                    response = new Response(500, null, null);
                 }
             }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
-                bof.write(response.getStatusLine().getBytes("UTF-8"));
+                bof.write(constructStatusLine(response).getBytes("UTF-8"));
                 for (String header : response.getHeaders()) {
                     bof.write(header.getBytes("UTF-8"));
                 }
@@ -94,11 +90,9 @@ public class Threads implements Runnable {
         String requestInfo = new String(buf, 0, info.length);
         String[] infoArray = requestInfo.split("\r\n");
         String requestLine = infoArray[0];
-        String[] requestParts = requestLine.split(" ");
-        String requestMethod = requestParts[0];
-        StringBuilder file = new StringBuilder(requestParts[1]);
-        file.setCharAt(0, '\\');
-        String requestURI = file.toString();
+        String requestMethod = requestLine.substring(0, requestLine.indexOf(" "));
+        String requestURI = requestLine.substring(requestLine.indexOf(" ") + 1, requestLine.lastIndexOf(" "));
+
         for (int i = 1; i < infoArray.length; i++) {
             String[] headerLine = infoArray[i].split(": ");
             if (headerLine.length > 1) {
@@ -117,5 +111,32 @@ public class Threads implements Runnable {
             }
         }
         return new Request(requestMethod, requestURI, headers, body);
+    }
+
+    private String constructStatusLine(Response response) {
+        int statusCode = response.getStatusCode();
+        String statusLine;
+        switch (statusCode) {
+            case 200: {
+                statusLine = "HTTP/1.1 " + statusCode + " OK";
+                break;
+            }
+            case 201: {
+                statusLine = "HTTP/1.1 " + statusCode + " Created";
+                break;
+            }
+            case 400: {
+                statusLine = "HTTP/1.1 " + statusCode + " Bad Request";
+                break;
+            }
+            case 404: {
+                statusLine = "HTTP/1.1 " + statusCode + " Not Found";
+                break;
+            }
+            default: {
+                statusLine = "HTTP/1.1 " + statusCode + " Internal Server Error";
+            }
+        }
+        return statusLine;
     }
 }

@@ -4,18 +4,18 @@ import java.util.List;
 
 public class Response {
 
-    private String statusLine;
+    private int statusCode;
     private List<String> headers;
     private byte[] body;
 
-    public Response(String statusLine, List<String> headers, byte[] body) {
-        this.statusLine = statusLine;
+    public Response(int statusCode, List<String> headers, byte[] body) {
+        this.statusCode = statusCode;
         this.headers = headers;
         this.body = body;
     }
 
-    public String getStatusLine() {
-        return statusLine;
+    public int getStatusCode() {
+        return statusCode;
     }
 
     public List<String> getHeaders() {

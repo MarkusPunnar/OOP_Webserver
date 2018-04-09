@@ -9,40 +9,43 @@ import java.util.List;
 
 public class DeleteResponse {
 
-	public Response deleteResponse(String fileName, File directory) {
-		System.out.println("Delete request received");
-		String statusLine;
-		List<String> headers = new ArrayList<>();
-		byte[] body = null;
-		Path filePath = Paths.get(directory.toString() + fileName);
-		System.out.println(filePath.toString());
-		if (fileName.equals("\\")) {
-			statusLine = "HTTP/1.1 400 Bad Request\r\n";
-		} else {
-			if (Files.exists(filePath)) {
-				File deletable = new File(filePath.toString());
-				if (deletable.isDirectory()) {
-					if (RecursiveDeleter.deleteDirectory(deletable)) {
-						statusLine = "HTTP/1.1 200 OK\r\n";
-					}
-					else {
-						statusLine = "HTTP/1.1 500 Internal Server Error\r\n";
-					}
-				}
-				else if (deletable.isFile()) {
-					if (deletable.delete()) {
-						statusLine = "HTTP/1.1 200 OK\r\n";
-					} else {
-						statusLine = "HTTP/1.1 500 Internal Server Error\r\n";
-					}
-				}
-				else {
-					statusLine = "HTTP/1.1 500 Internal Server Error\r\n";
-				}
-			} else {
-				statusLine = "HTTP/1.1 500 Internal Server Error\r\n";
-			}
-		}
-		return new Response(statusLine, headers, body);
-	}
+    private Path directory;
+
+    public DeleteResponse(Path directory) {
+        this.directory = directory;
+    }
+
+    public Response deleteResponse(Request request) {
+        System.out.println("Delete request received");
+        int statusCode;
+        List<String> headers = new ArrayList<>();
+        byte[] body = null;
+        Path filePath = Paths.get(directory.toString() + request.getRequestURI());
+        System.out.println(filePath.toString());
+        if (request.getRequestURI().equals("\\")) {
+            statusCode = 400;
+        } else {
+            if (Files.exists(filePath)) {
+                File deletable = new File(filePath.toString());
+                if (deletable.isDirectory()) {
+                    if (RecursiveDeleter.deleteDirectory(deletable)) {
+                        statusCode = 200;
+                    } else {
+                        statusCode = 500;
+                    }
+                } else if (deletable.isFile()) {
+                    if (deletable.delete()) {
+                        statusCode = 200;
+                    } else {
+                        statusCode = 500;
+                    }
+                } else {
+                    statusCode = 500;
+                }
+            } else {
+                statusCode = 500;
+            }
+        }
+        return new Response(statusCode, headers, body);
+    }
 }
