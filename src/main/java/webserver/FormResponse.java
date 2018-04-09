@@ -1,26 +1,26 @@
 package webserver;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FormResponse {
-    public Response formResponse(byte[] data) {
+
+    public Response formResponse(Request request) throws UnsupportedEncodingException {
         String statusLine = "HTTP/1.1 200 OK\r\n";
         List<String> headers = new ArrayList<>();
         byte[] body;
-        String sdata = new String(data, StandardCharsets.UTF_8);
-        String[] adata = sdata.split("\r\n");
-
-        HashMap<String,String> map = new HashMap<String, String>();
-        map.put("nimi", adata[3]);
-        map.put("email", adata[7]);
-        map.put("message", adata[11]);
-
-        String response = "Data received" + "\nnimi: " + map.get("nimi") + "\nemail: " + map.get("email") + "\nmessage: " + map.get("message");
-        System.out.println(response);
+        Map<String, String> map = request.bodyToForm();
+        String response = "Data received";
+        for (String sone : map.keySet()) {
+            response += "\n" + sone + ": " + map.get(sone);
+        }
         body = response.getBytes();
+        System.out.println(response);
         return new Response(statusLine, headers, body);
     }
 }
