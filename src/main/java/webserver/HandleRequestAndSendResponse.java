@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 
+
 public class HandleRequestAndSendResponse implements Runnable {
 
     private Socket socket;
@@ -30,7 +31,7 @@ public class HandleRequestAndSendResponse implements Runnable {
             Response response;
             switch (request.getRequestMethod()) {
                 case "GET":
-                    GetResponse getResponse = new GetResponse(Paths.get(directory));
+                    GetResponse getResponse = new GetResponse(Paths.get(directory), mimeTypes);
                     response = getResponse.getResponse(request);
                     break;
                 case "POST":

@@ -10,14 +10,16 @@ import java.util.Map;
 public class GetResponse {
 
     private Path directory;
+    private Map<String, String> mimeTypes;
 
-    public GetResponse(Path directory) {
+    public GetResponse(Path directory, Map<String, String> mimeTypes) {
         this.directory = directory;
+        this.mimeTypes = mimeTypes;
     }
 
     public Response getResponse(Request request) throws IOException {
         String requestURI = request.getRequestURI();
-        String extension = requestURI.substring(requestURI.lastIndexOf(".") + 1);
+        String fileExtension = requestURI.substring(requestURI.lastIndexOf(".") + 1);
         Map<String, String> responseHeaders = new HashMap<>();
         int statusCode;
         byte[] body = null;
@@ -40,10 +42,10 @@ public class GetResponse {
                 body = Files.readAllBytes(requestedFilePathInDir);
             }
             responseHeaders.put("Content-Length", String.valueOf(body.length));
-            if (extension.equals("txt")) {
-                responseHeaders.put("Content-Type", "text/plain");
-            } else if (extension.equals("html")) {
-                responseHeaders.put("Content-Type", "text/html");
+            for (String extension: mimeTypes.keySet()) {
+                if (fileExtension.equals(extension)) {
+                    responseHeaders.put("Content-Type", mimeTypes.get(extension));
+                }
             }
         } else {
             statusCode = 404;
