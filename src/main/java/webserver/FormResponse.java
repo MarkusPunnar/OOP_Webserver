@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +10,7 @@ public class FormResponse {
 
     public Response formResponse(Request request) throws UnsupportedEncodingException {
         int statusCode = 200;
-        List<String> headers = new ArrayList<>();
+        Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
         Map<String, String> map = request.bodyToForm();
         String response = "Data received";
@@ -18,6 +19,6 @@ public class FormResponse {
         }
         body = response.getBytes();
         System.out.println(response);
-        return new Response(statusCode, headers, body);
+        return new Response(statusCode, responseHeaders, body);
     }
 }

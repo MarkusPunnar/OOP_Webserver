@@ -5,7 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DeleteResponse {
 
@@ -18,7 +20,7 @@ public class DeleteResponse {
     public Response deleteResponse(Request request) {
         System.out.println("Delete request received");
         int statusCode;
-        List<String> headers = new ArrayList<>();
+        Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;
         Path filePath = Paths.get(directory.toString() + request.getRequestURI());
         System.out.println(filePath.toString());
@@ -46,6 +48,6 @@ public class DeleteResponse {
                 statusCode = 500;
             }
         }
-        return new Response(statusCode, headers, body);
+        return new Response(statusCode, responseHeaders, body);
     }
 }

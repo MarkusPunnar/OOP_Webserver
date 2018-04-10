@@ -6,7 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PostResponse {
 
@@ -18,7 +20,7 @@ public class PostResponse {
 
     public Response postResponse(Request request) throws IOException {
         int statusCode;
-        List<String> headers = new ArrayList<>();
+        Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;
         Path filePath = Paths.get(directory.toString() + request.getRequestURI());
         System.out.println(filePath.toString());
@@ -34,6 +36,6 @@ public class PostResponse {
                 fos.write(request.getBody());
             }
         }
-        return new Response(statusCode, headers, body);
+        return new Response(statusCode, responseHeaders, body);
     }
 }

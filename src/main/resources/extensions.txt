@@ -1,0 +1,13 @@
+txt text/plain
+html text/html
+png image/png
+jpg image/jpeg
+gif image/gif
+zip application/zip
+exe application/x-msdownload
+java test/x-java-source,java
+jar application/java-archive
+class application/java-vm
+json application/json
+xml application/xml
+pdf application/pdf

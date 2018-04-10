@@ -3,24 +3,24 @@ package webserver;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class Threads implements Runnable {
+public class HandleRequestAndSendResponse implements Runnable {
 
     private Socket socket;
     private String directory;
+    private Map<String, String> mimeTypes;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
-
-    public Threads(String directory, Socket socket) {
+    public HandleRequestAndSendResponse(Socket socket, String directory, Map<String, String> mimeTypes) {
         this.socket = socket;
         this.directory = directory;
+        this.mimeTypes = mimeTypes;
     }
 
     @Override
@@ -53,11 +53,11 @@ public class Threads implements Runnable {
             }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(constructStatusLine(response).getBytes("UTF-8"));
-                for (String header : response.getHeaders()) {
-                    bof.write(header.getBytes("UTF-8"));
+                for (String header : response.getHeaders().keySet()) {
+                    bof.write((header + ": " + response.getHeaders().get(header) + "\r\n").getBytes("UTF-8"));
                 }
+                bof.write(finalBytes);
                 if (response.getBody() != null) {
-                    bof.write(finalBytes);
                     bof.write(response.getBody());
                 }
             }
@@ -66,11 +66,8 @@ public class Threads implements Runnable {
         }
     }
 
-    private Request readRequest(Socket socket) throws Exception {
-        BufferedInputStream bf = new BufferedInputStream(socket.getInputStream());
+    private byte[] readRequestAsByteArray(BufferedInputStream bf) throws IOException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        Map<String, String> headers = new HashMap<>();
-        byte[] body = null;
         byte[] buf = new byte[1024];
         boolean finished = false;
         while (!finished) {
@@ -85,36 +82,60 @@ public class Threads implements Runnable {
             }
             byteOut.write(buf, 0, usefulBytes);
         }
-        byte[] info = byteOut.toByteArray();
-        String requestInfo = new String(buf, 0, info.length);
-        String[] infoArray = requestInfo.split("\r\n");
-        String requestLine = infoArray[0];
-        String requestMethod = requestLine.substring(0, requestLine.indexOf(" "));
-        String requestURI = requestLine.substring(requestLine.indexOf(" ") + 1, requestLine.lastIndexOf(" "));
+        return byteOut.toByteArray();
+    }
 
-        for (int i = 1; i < infoArray.length; i++) {
-            String[] headerLine = infoArray[i].split(": ");
-            if (headerLine.length > 1) {
-                headers.put(headerLine[0], headerLine[1]);
+    private Request readRequest(Socket socket) throws Exception {
+        BufferedInputStream bf = new BufferedInputStream(socket.getInputStream());
+        byte[] requestBody = null;
+        byte[] requestLineAndHeaders = readRequestAsByteArray(bf);
+        String requestLineAndHeadersAsString = new String(requestLineAndHeaders, 0, requestLineAndHeaders.length);
+        List<String> requestLineComponents = parseRequestLine(requestLineAndHeadersAsString);
+        Map<String, String> requestHeadersAsMap = readRequestHeadersToMap(requestLineAndHeadersAsString);
+        if (requestHeadersAsMap.get("Content-Length") != null) {
+            int requestBodyLength = Integer.parseInt(requestHeadersAsMap.get("Content-Length"));
+            requestBody = readRequestBodyAsBytes(requestBodyLength, bf);
+        }
+        return new Request(requestLineComponents.get(0), requestLineComponents.get(1), requestHeadersAsMap, requestBody);
+    }
+
+    private List<String> parseRequestLine(String requestInfo) {
+        List<String> requestInfoAsList = new ArrayList<>();
+        String requestLine = requestInfo.split("\r\n")[0];
+        String requestType = requestLine.substring(0, requestLine.indexOf(" "));
+        String requestURI = requestLine.substring(requestLine.indexOf(" ") + 1, requestLine.lastIndexOf(" "));
+        requestInfoAsList.add(requestType);
+        requestInfoAsList.add(requestURI);
+        return requestInfoAsList;
+    }
+
+    private Map<String, String> readRequestHeadersToMap(String requestInfo) {
+        Map<String, String> requestHeadersAsMap = new HashMap<>();
+        String[] requestHeadersArray = Arrays.copyOfRange(requestInfo.split("\r\n"), 1, requestInfo.split("\r\n").length);
+        for (String requestHeader : requestHeadersArray) {
+            String[] requestHeaderLine = requestHeader.split(": ");
+            if (requestHeaderLine.length > 1) {
+                requestHeadersAsMap.put(requestHeaderLine[0], requestHeaderLine[1]);
             }
         }
-        if (headers.get("Content-Length") != null) {
-            int bodyLength = Integer.parseInt(headers.get("Content-Length"));
-            body = new byte[bodyLength];
-            int read = 0;
-            int bytesRead = 0;
-            while (read != -1 && bytesRead != bodyLength) {
-                read = bf.read();
-                body[bytesRead] = (byte) read;
-                bytesRead++;
-            }
+        return requestHeadersAsMap;
+    }
+
+    private byte[] readRequestBodyAsBytes(int requestBodyLength, BufferedInputStream bf) throws IOException {
+        byte[] requestBody = new byte[requestBodyLength];
+        int read = 0;
+        int bytesRead = 0;
+        while (read != -1 && bytesRead != requestBodyLength) {
+            read = bf.read();
+            requestBody[bytesRead] = (byte) read;
+            bytesRead++;
         }
-        return new Request(requestMethod, requestURI, headers, body);
+        return requestBody;
     }
 
     private String constructStatusLine(Response response) {
         int statusCode = response.getStatusCode();
-        return "HTTP/1.1 " + statusCode + " " + findProperStatusMessage(statusCode);
+        return "HTTP/1.1 " + statusCode + " " + findProperStatusMessage(statusCode) + "\r\n";
     }
 
     private String findProperStatusMessage(int statusCode) {
@@ -129,7 +150,8 @@ public class Threads implements Runnable {
                 return "Not Found";
             case 500:
                 return "Internal Server Error";
-            default: throw new IllegalArgumentException("Unknown status code.");
+            default:
+                throw new IllegalArgumentException("Unknown status code.");
         }
     }
 }
