@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class WebServer {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         try (ServerSocket ss = new ServerSocket(1337)) {
             String dirName;
             Map<String, String> mimeTypes = new HashMap<>();
@@ -22,29 +22,30 @@ public class WebServer {
             }
             System.out.println("Server file directory set as " + dirName);
             System.out.println("Ready for clients to connect");
-            try (InputStream is = GetResponse.class.getClassLoader().getResourceAsStream("extensions.txt")) {
-                byte[] mimeTypesAsArray;
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                int nRead;
-                byte[] data = new byte[1024];
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, nRead);
-                }
-                buffer.flush();
-                mimeTypesAsArray = buffer.toByteArray();
-                String[] mimeTypesAsString = new String(mimeTypesAsArray,0,mimeTypesAsArray.length).split("\n");
-                for (String mimeType: mimeTypesAsString) {
-                    String[] mimeInfo = mimeType.split(" ");
-                    mimeTypes.put(mimeInfo[0], mimeInfo[1]);
-                }
+            byte[] mimeTypesAsArray = readExtensionMimesFromFile();
+            String[] mimeTypesAsString = new String(mimeTypesAsArray, 0, mimeTypesAsArray.length).split("\n");
+            for (String mimeType : mimeTypesAsString) {
+                String[] mimeInfo = mimeType.split(" ");
+                mimeTypes.put(mimeInfo[0], mimeInfo[1]);
             }
-                while (true) {
+            while (true) {
                 Socket socket = ss.accept();
                 Thread thread = new Thread(new HandleRequestAndSendResponse(socket, dirName, mimeTypes));
                 thread.start();
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }
+    }
+
+    private static byte[] readExtensionMimesFromFile() throws IOException {
+        try (InputStream is = GetResponse.class.getClassLoader().getResourceAsStream("extensions.txt")) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int nRead;
+            byte[] data = new byte[1024];
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            buffer.flush();
+            return buffer.toByteArray();
         }
     }
 }

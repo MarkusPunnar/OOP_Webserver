@@ -32,7 +32,7 @@ public class GetResponse {
         if (Files.exists(requestedFilePathInDir)) {
             statusCode = 200;
             if (Files.isDirectory(requestedFilePathInDir)) {
-                if (Paths.get(directory.toString(), "index.html").toFile().exists()) {
+                if (Files.exists(Paths.get(directory.toString(), "index.html"))) {
                     requestedFilePathInDir = Paths.get(requestedFilePathInDir.toString(), "index.html");
                 } else {
                     body = DirectoryBrowserGenerator.generate(requestedFilePathInDir.toFile(), directory.toFile());
@@ -42,10 +42,8 @@ public class GetResponse {
                 body = Files.readAllBytes(requestedFilePathInDir);
             }
             responseHeaders.put("Content-Length", String.valueOf(body.length));
-            for (String extension: mimeTypes.keySet()) {
-                if (fileExtension.equals(extension)) {
-                    responseHeaders.put("Content-Type", mimeTypes.get(extension));
-                }
+            if (mimeTypes.get(fileExtension) != null) {
+                responseHeaders.put("Content-Length", mimeTypes.get(fileExtension));
             }
         } else {
             statusCode = 404;
@@ -57,7 +55,7 @@ public class GetResponse {
 
     private Path defaultRequestURIHandler() {
         Path requestedFilePathInDir;
-        if (Paths.get(directory.toString(), "index.html").toFile().exists()) {
+        if (Files.exists(Paths.get(directory.toString(), "index.html"))) {
             requestedFilePathInDir = Paths.get(directory.toString(), "index.html");
         } else {
             requestedFilePathInDir = directory;

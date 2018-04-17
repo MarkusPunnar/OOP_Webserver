@@ -16,7 +16,6 @@ public class DeleteResponse {
     }
 
     public Response deleteResponse(Request request) {
-        System.out.println("Delete request received");
         int statusCode;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;
