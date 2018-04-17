@@ -31,8 +31,14 @@ public class HandleRequestAndSendResponse implements Runnable {
             Response response;
             switch (request.getRequestMethod()) {
                 case "GET":
-                    GetResponse getResponse = new GetResponse(Paths.get(directory), mimeTypes);
-                    response = getResponse.getResponse(request);
+                    if (request.getRequestURI().equals("/")) {
+                        DefaultURIGetHandler defaultHandle = new DefaultURIGetHandler(Paths.get(directory), mimeTypes);
+                        response = defaultHandle.handle(request);
+                    }
+                    else {
+                        GetResponseWithStaticFile getHandle = new GetResponseWithStaticFile(Paths.get(directory), mimeTypes);
+                        response = getHandle.getResponseWithStaticFile(request);
+                    }
                     break;
                 case "POST":
                     if (request.getRequestURI().equals("\\form/test")) {
