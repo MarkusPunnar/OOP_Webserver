@@ -15,7 +15,7 @@ public class DeleteResponse {
         this.directory = directory;
     }
 
-    public Response deleteResponse(Request request) {
+    public Response handle(Request request) {
         int statusCode;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;

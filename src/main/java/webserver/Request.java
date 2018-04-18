@@ -22,15 +22,28 @@ public class Request {
     }
 
     public Map<String, String> bodyToForm() throws UnsupportedEncodingException {
-        String sdata = new String(this.body, StandardCharsets.UTF_8);
-        System.out.println(sdata);
-        String[] adata = sdata.split("&");
+        String requestData = new String(body, StandardCharsets.UTF_8);
+        String[] requestDataParts = requestData.split("&");
+        if (requestDataParts.length == 1 && countChars(requestDataParts[0]) != 1) {
+            return null;
+        }
         HashMap<String, String> map = new HashMap<String, String>();
-        for (String sone : adata) {
-            String[] jupid = sone.split("=");
-            map.put(URLDecoder.decode(jupid[0], "UTF-8"), URLDecoder.decode(jupid[1], "UTF-8"));
+        for (String string : requestDataParts) {
+            String[] dataTypeAndValue = string.split("=");
+            map.put(URLDecoder.decode(dataTypeAndValue[0], "UTF-8"), URLDecoder.decode(dataTypeAndValue[1], "UTF-8"));
         }
         return map;
+    }
+
+    private int countChars(String dataPart) {
+        int count = 0;
+        char[] stringSymbols = dataPart.toCharArray();
+        for (char symbol: stringSymbols) {
+            if (symbol == '=') {
+                count++;
+            }
+        }
+        return count;
     }
 
     public Map<String, String> getHeaders() {

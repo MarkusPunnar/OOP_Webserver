@@ -16,23 +16,19 @@ public class PostResponse {
         this.directory = directory;
     }
 
-    public Response postResponse(Request request) throws IOException {
+    public Response handle(Request request) throws IOException {
         int statusCode;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;
         Path filePath = Paths.get(directory.toString() + request.getRequestURI());
         System.out.println(filePath.toString());
-        if (request.getRequestURI().equals("\\")) {
+        if (Files.exists(filePath) || request.getRequestURI().equals("/")) {
             statusCode = 400;
         } else {
-            if (Files.exists(filePath)) {
-                statusCode = 200;
-            } else {
-                statusCode = 201;
-            }
-            try (FileOutputStream fos = new FileOutputStream(filePath.toString())) {
-                fos.write(request.getBody());
-            }
+            statusCode = 201;
+        }
+        try (FileOutputStream fos = new FileOutputStream(filePath.toString())) {
+            fos.write(request.getBody());
         }
         return new Response(statusCode, responseHeaders, body);
     }

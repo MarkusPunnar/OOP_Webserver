@@ -6,11 +6,14 @@ import java.util.Map;
 
 public class FormResponse {
 
-    public Response formResponse(Request request) throws UnsupportedEncodingException {
+    public Response handle(Request request) throws UnsupportedEncodingException {
         int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
         Map<String, String> map = request.bodyToForm();
+        if (map == null) {
+            return new Response(400, null, null);
+        }
         String response = "Data received";
         for (String sone : map.keySet()) {
             response += "\n" + sone + ": " + map.get(sone);

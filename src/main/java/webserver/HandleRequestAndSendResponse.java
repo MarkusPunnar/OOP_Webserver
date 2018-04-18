@@ -29,21 +29,18 @@ public class HandleRequestAndSendResponse implements Runnable {
             Response response;
             switch (request.getRequestMethod()) {
                 case "GET":
-                    response = chooseProperResponseClass(request);
+                    response = new StaticGetResponse(Paths.get(directory), mimeTypes).handle(request);
                     break;
                 case "POST":
-                    if (request.getRequestURI().equals("\\form/test")) {
-                        FormResponse formResponse = new FormResponse();
-                        response = formResponse.formResponse(request);
+                    if (request.getRequestURI().equals("/form/test")) {
+                        response = new FormResponse().handle(request);
                         break;
                     } else {
-                        PostResponse postResponse = new PostResponse(Paths.get(directory));
-                        response = postResponse.postResponse(request);
+                        response = new PostResponse(Paths.get(directory)).handle(request);
                         break;
                     }
                 case "DELETE":
-                    DeleteResponse deleteResponse = new DeleteResponse(Paths.get(directory));
-                    response = deleteResponse.deleteResponse(request);
+                    response = new DeleteResponse(Paths.get(directory)).handle(request);
                     break;
                 default: {
                     response = new Response(500, null, null);
@@ -51,8 +48,10 @@ public class HandleRequestAndSendResponse implements Runnable {
             }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(constructStatusLine(response).getBytes("UTF-8"));
-                for (String header : response.getHeaders().keySet()) {
-                    bof.write((header + ": " + response.getHeaders().get(header) + "\r\n").getBytes("UTF-8"));
+                if (response.getHeaders() != null) {
+                    for (String header : response.getHeaders().keySet()) {
+                        bof.write((header + ": " + response.getHeaders().get(header) + "\r\n").getBytes("UTF-8"));
+                    }
                 }
                 bof.write(finalBytes);
                 if (response.getBody() != null) {
@@ -152,31 +151,6 @@ public class HandleRequestAndSendResponse implements Runnable {
                 return "Internal Server Error";
             default:
                 throw new IllegalArgumentException("Unknown status code.");
-        }
-    }
-
-    private Response chooseProperResponseClass(Request request) {
-        try {
-            int statusCode;
-            Map<String, String> responseHeaders = new HashMap<>();
-            byte[] body;
-            if (Files.isRegularFile(Paths.get(directory, request.getRequestURI()))) {
-                return new GetResponseWithStaticFile(Paths.get(directory), mimeTypes).handle(request);
-            }
-            if (Files.isDirectory(Paths.get(directory, request.getRequestURI()))) {
-                if (Files.exists(Paths.get(directory, request.getRequestURI(), "index.html"))) {
-                    return new GetResponseWithDefaultPage(Paths.get(directory)).handle(request);
-                } else {
-                    return new GetResponseWithGeneratedTree(Paths.get(directory)).handle(request);
-                }
-            } else {
-                statusCode = 404;
-                responseHeaders.put("Content-Type", "text/html");
-                body = ClasspathUtil.readFileFromClasspath("404page.html");
-                return new Response(statusCode, responseHeaders, body);
-            }
-        } catch (Exception e) {
-            return new Response(500, null, null);
         }
     }
 }
