@@ -1,11 +1,9 @@
 package webserver;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -31,14 +29,7 @@ public class HandleRequestAndSendResponse implements Runnable {
             Response response;
             switch (request.getRequestMethod()) {
                 case "GET":
-                    if (request.getRequestURI().equals("/")) {
-                        DefaultURIGetHandler defaultHandle = new DefaultURIGetHandler(Paths.get(directory), mimeTypes);
-                        response = defaultHandle.handle(request);
-                    }
-                    else {
-                        GetResponseWithStaticFile getHandle = new GetResponseWithStaticFile(Paths.get(directory), mimeTypes);
-                        response = getHandle.getResponseWithStaticFile(request);
-                    }
+                    response = chooseProperResponseClass(request);
                     break;
                 case "POST":
                     if (request.getRequestURI().equals("\\form/test")) {
@@ -155,10 +146,37 @@ public class HandleRequestAndSendResponse implements Runnable {
                 return "Bad Request";
             case 404:
                 return "Not Found";
+            case 405:
+                return "Method Not Allowed";
             case 500:
                 return "Internal Server Error";
             default:
                 throw new IllegalArgumentException("Unknown status code.");
+        }
+    }
+
+    private Response chooseProperResponseClass(Request request) {
+        try {
+            int statusCode;
+            Map<String, String> responseHeaders = new HashMap<>();
+            byte[] body;
+            if (Files.isRegularFile(Paths.get(directory, request.getRequestURI()))) {
+                return new GetResponseWithStaticFile(Paths.get(directory), mimeTypes).handle(request);
+            }
+            if (Files.isDirectory(Paths.get(directory, request.getRequestURI()))) {
+                if (Files.exists(Paths.get(directory, request.getRequestURI(), "index.html"))) {
+                    return new GetResponseWithDefaultPage(Paths.get(directory)).handle(request);
+                } else {
+                    return new GetResponseWithGeneratedTree(Paths.get(directory)).handle(request);
+                }
+            } else {
+                statusCode = 404;
+                responseHeaders.put("Content-Type", "text/html");
+                body = ClasspathUtil.readFileFromClasspath("404page.html");
+                return new Response(statusCode, responseHeaders, body);
+            }
+        } catch (Exception e) {
+            return new Response(500, null, null);
         }
     }
 }
