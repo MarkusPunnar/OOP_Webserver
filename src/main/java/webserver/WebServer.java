@@ -22,8 +22,8 @@ public class WebServer {
             }
             System.out.println("Server file directory set as " + dirName);
             System.out.println("Ready for clients to connect");
-            byte[] mimeTypesAsArray = readExtensionMimesFromFile();
-            String[] mimeTypesAsString = new String(mimeTypesAsArray, 0, mimeTypesAsArray.length).split("\n");
+            byte[] mimeTypesAsArray = ClasspathUtil.readFileFromClasspath("extensions.txt");
+            String[] mimeTypesAsString = new String(mimeTypesAsArray, "UTF-8").split("\n");
             for (String mimeType : mimeTypesAsString) {
                 String[] mimeInfo = mimeType.split(" ");
                 mimeTypes.put(mimeInfo[0], mimeInfo[1]);
@@ -33,19 +33,6 @@ public class WebServer {
                 Thread thread = new Thread(new HandleRequestAndSendResponse(socket, dirName, mimeTypes));
                 thread.start();
             }
-        }
-    }
-
-    private static byte[] readExtensionMimesFromFile() throws IOException {
-        try (InputStream is = GetResponse.class.getClassLoader().getResourceAsStream("extensions.txt")) {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            int nRead;
-            byte[] data = new byte[1024];
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, nRead);
-            }
-            buffer.flush();
-            return buffer.toByteArray();
         }
     }
 }

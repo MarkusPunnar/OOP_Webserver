@@ -43,8 +43,8 @@ public class GetResponseWithStaticFile {
             }
         } else {
             statusCode = 404;
-            responseHeaders.put("Content-Type", "text/plain");
-            body = "HTTP/1.1 404 Not Found".getBytes();
+            responseHeaders.put("Content-Type", "text/html");
+            body = ClasspathUtil.readFileFromClasspath("404page.html");
         }
         return new Response(statusCode, responseHeaders, body);
     }

@@ -23,11 +23,11 @@ public class DefaultURIGetHandler {
         Map<String, String> responseHeaders = new HashMap<>();
         int statusCode = 500;
         byte[] body;
-        Path requestedFilePathInDir = defaultRequestURIHandler();
+        Path requestedFilePathInDir = requestURIHandler();
         if (!Files.exists(requestedFilePathInDir)) {
             statusCode = 404;
-            responseHeaders.put("Content-Type", "text/plain");
-            body = "HTTP/1.1 404 Not Found".getBytes();
+            responseHeaders.put("Content-Type", "text/html");
+            body = ClasspathUtil.readFileFromClasspath("404page.html");
             return new Response(statusCode, responseHeaders, body);
         }
         if (checkRequestPath(requestedFilePathInDir)) {
@@ -43,7 +43,7 @@ public class DefaultURIGetHandler {
         return new Response(statusCode, responseHeaders, body);
     }
 
-    private Path defaultRequestURIHandler() {
+    private Path requestURIHandler() {
         Path requestedFilePathInDir;
         if (Files.exists(Paths.get(directory.toString(), "index.html"))) {
             requestedFilePathInDir = Paths.get(directory.toString(), "index.html");
