@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,28 +18,31 @@ public class StaticGetResponse {
         this.mimeTypes = mimeTypes;
     }
 
-    public Response handle(Request request) throws IOException {
+    public Response handle(Request request) {
         Response response;
-        if (Files.isRegularFile(Paths.get(directory.toString(), request.getRequestURI()))) {
-             response = responseWithStaticFile(request);
-        }
-        else if (Files.isDirectory(Paths.get(directory.toString(), request.getRequestURI()))) {
-            if (Files.exists(Paths.get(directory.toString(), request.getRequestURI(), "index.html"))) {
-                response = responseWithDefaultPage(request);
+        try {
+            if (Files.isRegularFile(Paths.get(directory.toString(), request.getRequestURI()))) {
+                response = responseWithStaticFile(request);
+            } else if (Files.isDirectory(Paths.get(directory.toString(), request.getRequestURI()))) {
+                if (Files.exists(Paths.get(directory.toString(), request.getRequestURI(), "index.html"))) {
+                    response = responseWithDefaultPage(request);
+                } else {
+                    response = responseWithFileTree(request);
+                }
             } else {
-                response = responseWithFileTree(request);
+                int statusCode = 404;
+                Map<String, String> responseHeaders = new HashMap<>();
+                responseHeaders.put("Content-Type", "text/html");
+                byte[] body = ClasspathUtil.readFileFromClasspath("404page.html");
+                response = new Response(statusCode, responseHeaders, body);
             }
-        } else {
-            int statusCode = 404;
-            Map<String, String> responseHeaders = new HashMap<>();
-            responseHeaders.put("Content-Type", "text/html");
-            byte[] body = ClasspathUtil.readFileFromClasspath("404page.html");
-            response = new Response(statusCode, responseHeaders, body);
+            return response;
+        } catch (Exception e) {
+            return new Response(500, Collections.emptyMap(), null);
         }
-        return response;
     }
 
-    private Response responseWithStaticFile(Request request) throws IOException{
+    private Response responseWithStaticFile(Request request) throws IOException {
         int statusCode = 200;
         if (!request.getRequestMethod().equals("GET")) {
             statusCode = 405;
