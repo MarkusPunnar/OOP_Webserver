@@ -16,7 +16,7 @@ public class DeleteResponse {
     }
 
     public Response handle(Request request) {
-        int statusCode;
+        int statusCode = 0;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;
         Path filePath = Paths.get(directory.toString() + request.getRequestURI());
@@ -29,21 +29,16 @@ public class DeleteResponse {
                 if (deletable.isDirectory()) {
                     if (RecursiveDeleter.deleteDirectory(deletable)) {
                         statusCode = 200;
-                    } else {
-                        statusCode = 500;
                     }
                 } else if (deletable.isFile()) {
                     if (deletable.delete()) {
                         statusCode = 200;
-                    } else {
-                        statusCode = 500;
                     }
-                } else {
-                    statusCode = 500;
                 }
-            } else {
-                statusCode = 500;
             }
+        }
+        if(statusCode==0){
+            statusCode = 400;
         }
         return new Response(statusCode, responseHeaders, body);
     }
