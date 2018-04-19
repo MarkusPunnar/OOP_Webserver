@@ -18,7 +18,7 @@ public class WebServer {
                 dirName = args[0];
             }
             if (!new File(dirName).isDirectory()) {
-                throw new RuntimeException("Command line argument " + dirName + " is not an directory.");
+                throw new RuntimeException("Command line argument " + dirName + " is not a directory.");
             }
             System.out.println("Server file directory set as " + dirName);
             System.out.println("Ready for clients to connect");

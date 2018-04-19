@@ -8,8 +8,12 @@ public class DirectoryBrowserGenerator {
     public static byte[] generate(File givenDir, File defaultDir) throws IOException {
     	String relativeDirname = "";
     	String parentDirname = "";
-    	String[] givenDirPathSplit = givenDir.getAbsolutePath().split("\\\\");
-    	String[] defaultDirPathSplit = defaultDir.getAbsolutePath().split("\\\\");
+    	String separator = File.separator;
+    	if (separator != "/") {
+		    separator = "\\\\";
+	    }
+    	String[] givenDirPathSplit = givenDir.getAbsolutePath().split(separator);
+    	String[] defaultDirPathSplit = defaultDir.getAbsolutePath().split(separator);
 
 	    for (int i = defaultDirPathSplit.length; i < givenDirPathSplit.length; i++) {
 		    relativeDirname = relativeDirname + "/" + givenDirPathSplit[i];
