@@ -20,6 +20,9 @@ public class StaticGetResponse {
 
     public Response handle(Request request) {
         Response response;
+        if (!request.getRequestMethod().equals("GET")) {
+            return new Response(405, Collections.emptyMap(), null);
+        }
         try {
             if (Files.isRegularFile(Paths.get(directory.toString(), request.getRequestURI()))) {
                 response = responseWithStaticFile(request);

@@ -12,6 +12,7 @@ public class HandleRequestAndSendResponse implements Runnable {
     private Socket socket;
     private String directory;
     private Map<String, String> mimeTypes;
+    private Map<String, RequestHandler> dynamicResponseURIs = new HashMap<>();
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
@@ -23,27 +24,26 @@ public class HandleRequestAndSendResponse implements Runnable {
 
     @Override
     public void run() {
-        Response response;
+        Response response = null;
+        List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
+        for (RequestHandler responseClass : dynamicResponseClasses) {
+            responseClass.register(dynamicResponseURIs);
+        }
         try {
             Request request = readRequest(socket);
-            switch (request.getRequestMethod()) {
-                case "GET":
-                    response = new StaticGetResponse(Paths.get(directory), mimeTypes).handle(request);
-                    break;
-                case "POST":
-                    if (request.getRequestURI().equals("/form/test")) {
-                        response = new FormResponse().handle(request);
-                        break;
-                    } else {
-                        response = new PostResponse(Paths.get(directory)).handle(request);
-                        break;
+            boolean foundProperClass = false;
+            int matchesTried = 0;
+            while (!foundProperClass && matchesTried != dynamicResponseURIs.keySet().size()) {
+                for (String matchingRequestURI : dynamicResponseURIs.keySet()) {
+                    foundProperClass = checkURIMatching(matchingRequestURI,request);
+                    if (foundProperClass) {
+                        response = dynamicResponseURIs.get(matchingRequestURI).handle(request);
                     }
-                case "DELETE":
-                    response = new DeleteResponse(Paths.get(directory)).handle(request);
-                    break;
-                default: {
-                    response = new Response(500, Collections.emptyMap(), null);
+                    matchesTried++;
                 }
+            }
+            if (response == null) {
+                response = new StaticGetResponse(Paths.get(directory), mimeTypes).handle(request);
             }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(constructStatusLine(response).getBytes("UTF-8"));
@@ -148,6 +148,28 @@ public class HandleRequestAndSendResponse implements Runnable {
                 return "Internal Server Error";
             default:
                 throw new IllegalArgumentException("Unknown status code.");
+        }
+    }
+
+    private List<RequestHandler> createDynamicResponseObjects() {
+        List<RequestHandler> responseObjects = new ArrayList<>();
+        CurrentDateTime currentDate = new CurrentDateTime();
+        CurrentWeather weather = new CurrentWeather();
+        PostResponse postResponseClass = new PostResponse(Paths.get(directory));
+        DeleteResponse deleteResponseClass = new DeleteResponse(Paths.get(directory));
+        responseObjects.add(currentDate);
+        responseObjects.add(weather);
+        responseObjects.add(postResponseClass);
+        responseObjects.add(deleteResponseClass);
+        return responseObjects;
+    }
+
+    private boolean checkURIMatching(String matchingRequestURI, Request request) {
+        if (matchingRequestURI.contains("*")) {
+            int indexOfStar = matchingRequestURI.indexOf('*');
+            return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
+        } else {
+            return matchingRequestURI.equals(request.getRequestURI());
         }
     }
 }

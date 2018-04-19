@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FormResponse {
+public class FormResponse implements RequestHandler {
 
     public Response handle(Request request) throws UnsupportedEncodingException {
         int statusCode = 200;
@@ -22,5 +22,9 @@ public class FormResponse {
         body = response.getBytes();
         System.out.println(response);
         return new Response(statusCode, responseHeaders, body);
+    }
+
+    public void register(Map<String, RequestHandler> patterns) {
+        patterns.put("/form/test", new FormResponse());
     }
 }
