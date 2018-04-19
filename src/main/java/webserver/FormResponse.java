@@ -1,6 +1,7 @@
 package webserver;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,13 +11,13 @@ public class FormResponse {
         int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
-        Map<String, String> map = request.bodyToForm();
-        if (map == null) {
-            return new Response(400, null, null);
+        Map<String, String> dataMap = request.bodyToForm();
+        if (dataMap == null) {
+            return new Response(400, Collections.emptyMap(), null);
         }
         String response = "Data received";
-        for (String sone : map.keySet()) {
-            response += "\n" + sone + ": " + map.get(sone);
+        for (String dataPart : dataMap.keySet()) {
+            response += "\n" + dataPart + ": " + dataMap.get(dataPart);
         }
         body = response.getBytes();
         System.out.println(response);

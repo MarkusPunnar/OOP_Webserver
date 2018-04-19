@@ -3,7 +3,6 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -24,9 +23,9 @@ public class HandleRequestAndSendResponse implements Runnable {
 
     @Override
     public void run() {
+        Response response;
         try {
             Request request = readRequest(socket);
-            Response response;
             switch (request.getRequestMethod()) {
                 case "GET":
                     response = new StaticGetResponse(Paths.get(directory), mimeTypes).handle(request);
@@ -43,15 +42,13 @@ public class HandleRequestAndSendResponse implements Runnable {
                     response = new DeleteResponse(Paths.get(directory)).handle(request);
                     break;
                 default: {
-                    response = new Response(500, null, null);
+                    response = new Response(500, Collections.emptyMap(), null);
                 }
             }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(constructStatusLine(response).getBytes("UTF-8"));
-                if (response.getHeaders() != null) {
-                    for (String header : response.getHeaders().keySet()) {
-                        bof.write((header + ": " + response.getHeaders().get(header) + "\r\n").getBytes("UTF-8"));
-                    }
+                for (String header : response.getHeaders().keySet()) {
+                    bof.write((header + ": " + response.getHeaders().get(header) + "\r\n").getBytes("UTF-8"));
                 }
                 bof.write(finalBytes);
                 if (response.getBody() != null) {
