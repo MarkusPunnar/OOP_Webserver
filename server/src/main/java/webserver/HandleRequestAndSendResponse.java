@@ -25,10 +25,13 @@ public class HandleRequestAndSendResponse implements Runnable {
     @Override
     public void run() {
         Response response = null;
-        List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
-        for (RequestHandler responseClass : dynamicResponseClasses) {
-            responseClass.register(dynamicResponseURIs);
+        //List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
+        for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
+            requestHandler.register(dynamicResponseURIs);
         }
+        /*for (RequestHandler responseClass : dynamicResponseClasses) {
+            responseClass.register(dynamicResponseURIs);
+        }*/
         try {
             Request request = readRequest(socket);
             boolean foundProperClass = false;
@@ -151,7 +154,7 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-    private List<RequestHandler> createDynamicResponseObjects() {
+   /* private List<RequestHandler> createDynamicResponseObjects() {
         List<RequestHandler> responseObjects = new ArrayList<>();
         CurrentDateTime currentDate = new CurrentDateTime();
         CurrentWeather weather = new CurrentWeather();
@@ -163,7 +166,7 @@ public class HandleRequestAndSendResponse implements Runnable {
         responseObjects.add(deleteResponseClass);
         return responseObjects;
     }
-
+*/
     private boolean checkURIMatching(String matchingRequestURI, Request request) {
         if (matchingRequestURI.contains("*")) {
             int indexOfStar = matchingRequestURI.indexOf('*');

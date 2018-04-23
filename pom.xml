@@ -11,7 +11,9 @@
 
   <modules>
     <module>server</module>
-    <module>forms</module>
+    <module>forms-plugin</module>
+    <module>current-date-plugin</module>
+    <module>weather-plugin</module>
   </modules>
     
 </project>
