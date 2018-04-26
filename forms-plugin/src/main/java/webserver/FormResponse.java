@@ -7,11 +7,6 @@ import java.util.Map;
 
 public class FormResponse implements RequestHandler {
 
-    @Override
-    public void initialize(ServerConfig sc) {
-
-    }
-
     public Response handle(Request request) throws UnsupportedEncodingException {
         int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
