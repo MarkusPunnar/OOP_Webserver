@@ -39,8 +39,9 @@ public class PostResponse implements RequestHandler {
         this.directory = sc.getDirectory();
     }
 
-    public void register(Map<String, RequestHandler> patterns) {
+    public void register(Map<String, RequestHandler> patterns, ServerConfig sc) {
         PostResponse pr = new PostResponse();
+        pr.initialize(sc);
         patterns.put("/upload/*", pr);
 
     }

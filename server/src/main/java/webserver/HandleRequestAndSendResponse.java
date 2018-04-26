@@ -22,22 +22,13 @@ public class HandleRequestAndSendResponse implements Runnable {
         this.mimeTypes = mimeTypes;
     }
 
-    public String getDirectory() {
-        return directory;
-    }
-
     @Override
     public void run() {
         Response response = null;
-        //List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
-
+        ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(directory));
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
-            requestHandler.register(dynamicResponseURIs);
+            requestHandler.register(dynamicResponseURIs, motherOfAllPlugins);
         }
-
-        /*for (RequestHandler responseClass : dynamicResponseClasses) {
-            responseClass.register(dynamicResponseURIs);
-        }*/
 
         try {
             Request request = readRequest(socket);

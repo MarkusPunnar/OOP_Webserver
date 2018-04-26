@@ -41,8 +41,9 @@ public class DeleteResponse implements RequestHandler {
         return new Response(statusCode, responseHeaders, body);
     }
 
-    public void register(Map<String, RequestHandler> patterns) {
+    public void register(Map<String, RequestHandler> patterns, ServerConfig sc) {
         DeleteResponse dr = new DeleteResponse();
+        dr.initialize(sc);
         patterns.put("/delete/*", dr);
 
     }

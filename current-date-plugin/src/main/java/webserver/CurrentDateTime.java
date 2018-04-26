@@ -22,7 +22,12 @@ public class CurrentDateTime implements RequestHandler {
         }
     }
 
-    public void register(Map<String, RequestHandler> patterns) {
+    public void register(Map<String, RequestHandler> patterns, ServerConfig sc) {
         patterns.put("/date/now", new CurrentDateTime());
+    }
+
+    @Override
+    public void initialize(ServerConfig sc) {
+
     }
 }
