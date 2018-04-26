@@ -34,14 +34,16 @@ public class HandleRequestAndSendResponse implements Runnable {
             Request request = readRequest(socket);
             boolean foundProperClass = false;
             int matchesTried = 0;
-            while (!foundProperClass && matchesTried != dynamicResponseURIs.keySet().size()) {
-                for (String matchingRequestURI : dynamicResponseURIs.keySet()) {
-                    foundProperClass = checkURIMatching(matchingRequestURI,request);
-                    if (foundProperClass) {
-                        response = dynamicResponseURIs.get(matchingRequestURI).handle(request);
-                    }
-                    matchesTried++;
-                }
+	        ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>();
+	        dynamicResponseURIsAsList.addAll(dynamicResponseURIs.keySet());
+	        compareMethodLength(dynamicResponseURIsAsList);
+	        while (!foundProperClass && matchesTried != dynamicResponseURIs.keySet().size()) {
+		        for (String matchingRequestURI : dynamicResponseURIsAsList) {
+			        if (checkURIMatching(matchingRequestURI, request)) {
+			        	response = dynamicResponseURIs.get(matchingRequestURI).handle(request);
+			        }
+			        matchesTried++;
+		        }
             }
             if (response == null) {
                 response = new StaticGetResponse(Paths.get(directory), mimeTypes).handle(request);
@@ -61,7 +63,23 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-    private byte[] readRequestAsByteArray(BufferedInputStream bf) throws IOException {
+	private void compareMethodLength(ArrayList<String> dynamicResponseURIsAsList) {
+		Collections.sort(dynamicResponseURIsAsList, new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				int length1 = o1.split("/").length;
+				int length2 = o2.split("/").length;
+				if (length1 == length2) {
+					return 0;
+				} else if (length1 > length2) {
+					return -1;
+				}
+				return 1;
+			}
+		});
+	}
+
+	private byte[] readRequestAsByteArray(BufferedInputStream bf) throws IOException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         boolean finished = false;
