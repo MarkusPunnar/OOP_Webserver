@@ -179,7 +179,6 @@ public class HandleRequestAndSendResponse implements Runnable {
             int indexOfStar = matchingRequestURI.indexOf('*');
             try {
 	            return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
-
             } catch (Exception e) {
             	return matchingRequestURI.equals(request.getRequestURI());
 	        }
