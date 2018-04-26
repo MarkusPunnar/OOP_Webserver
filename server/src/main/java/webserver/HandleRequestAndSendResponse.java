@@ -169,18 +169,7 @@ public class HandleRequestAndSendResponse implements Runnable {
                 throw new IllegalArgumentException("Unknown status code.");
         }
     }
-
-    /*private List<RequestHandler> createDynamicResponseObjects() {
-
-        List<RequestHandler> responseObjects = new ArrayList<>();
-
-        PostResponse postResponseClass = new PostResponse();
-        DeleteResponse deleteResponseClass = new DeleteResponse();
-        responseObjects.add(postResponseClass);
-        responseObjects.add(deleteResponseClass);
-        return responseObjects;
-    }*/
-
+    
     private boolean checkURIMatching(String matchingRequestURI, Request request) {
         if (matchingRequestURI.contains("*")) {
             int indexOfStar = matchingRequestURI.indexOf('*');
