@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ClasspathUtil {
+public class WebServerUtil {
     public static byte[] readFileFromClasspath(String fileName) throws IOException {
         try (InputStream is = WebServer.class.getClassLoader().getResourceAsStream(fileName)) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
