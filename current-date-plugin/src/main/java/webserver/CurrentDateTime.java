@@ -8,6 +8,10 @@ import java.util.Map;
 
 public class CurrentDateTime implements RequestHandler {
 
+    @Override
+    public void initialize(ServerConfig sc) {
+
+    }
 
     public Response handle(Request request) {
         try {
