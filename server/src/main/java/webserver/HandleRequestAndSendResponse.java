@@ -177,7 +177,12 @@ public class HandleRequestAndSendResponse implements Runnable {
     private boolean checkURIMatching(String matchingRequestURI, Request request) {
         if (matchingRequestURI.contains("*")) {
             int indexOfStar = matchingRequestURI.indexOf('*');
-            return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
+            try {
+	            return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
+
+            } catch (Exception e) {
+            	return matchingRequestURI.equals(request.getRequestURI());
+	        }
         } else {
             return matchingRequestURI.equals(request.getRequestURI());
         }
