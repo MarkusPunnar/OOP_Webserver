@@ -43,13 +43,13 @@ public class DeleteResponse implements RequestHandler {
 
     public void register(Map<String, RequestHandler> patterns) {
         DeleteResponse dr = new DeleteResponse();
-        dr.setDirectory(directory);
         patterns.put("/delete/*", dr);
 
     }
 
-    public void setDirectory(Path directory) {
-        this.directory = directory;
+    @Override
+    public void initialize(ServerConfig sc) {
+        this.directory = sc.getDirectory();
     }
 
 }

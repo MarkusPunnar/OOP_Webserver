@@ -34,14 +34,14 @@ public class PostResponse implements RequestHandler {
         return new Response(statusCode, responseHeaders, body);
     }
 
-    public void register(Map<String, RequestHandler> patterns) {
-        PostResponse pr = new PostResponse();
-        pr.setDirectory(directory);
-        patterns.put("/upload/*", pr);
-
+    @Override
+    public void initialize(ServerConfig sc) {
+        this.directory = sc.getDirectory();
     }
 
-    public void setDirectory(Path directory){
-        this.directory = directory;
+    public void register(Map<String, RequestHandler> patterns) {
+        PostResponse pr = new PostResponse();
+        patterns.put("/upload/*", pr);
+
     }
 }

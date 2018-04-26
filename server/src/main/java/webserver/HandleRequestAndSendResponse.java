@@ -29,15 +29,15 @@ public class HandleRequestAndSendResponse implements Runnable {
     @Override
     public void run() {
         Response response = null;
-        List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
+        //List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
 
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.register(dynamicResponseURIs);
         }
 
-        for (RequestHandler responseClass : dynamicResponseClasses) {
+        /*for (RequestHandler responseClass : dynamicResponseClasses) {
             responseClass.register(dynamicResponseURIs);
-        }
+        }*/
 
         try {
             Request request = readRequest(socket);
@@ -161,18 +161,16 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-    private List<RequestHandler> createDynamicResponseObjects() {
+    /*private List<RequestHandler> createDynamicResponseObjects() {
 
         List<RequestHandler> responseObjects = new ArrayList<>();
 
         PostResponse postResponseClass = new PostResponse();
-        postResponseClass.setDirectory(Paths.get(directory));
         DeleteResponse deleteResponseClass = new DeleteResponse();
-        deleteResponseClass.setDirectory(Paths.get(directory));
         responseObjects.add(postResponseClass);
         responseObjects.add(deleteResponseClass);
         return responseObjects;
-    }
+    }*/
 
     private boolean checkURIMatching(String matchingRequestURI, Request request) {
         if (matchingRequestURI.contains("*")) {
