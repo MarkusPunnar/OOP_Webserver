@@ -29,21 +29,20 @@ public class HandleRequestAndSendResponse implements Runnable {
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.register(dynamicResponseURIs, motherOfAllPlugins);
         }
-
         try {
             Request request = readRequest(socket);
             boolean foundProperClass = false;
             int matchesTried = 0;
-	        ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>();
-	        dynamicResponseURIsAsList.addAll(dynamicResponseURIs.keySet());
-	        compareMethodLength(dynamicResponseURIsAsList);
-	        while (!foundProperClass && matchesTried != dynamicResponseURIs.keySet().size()) {
-		        for (String matchingRequestURI : dynamicResponseURIsAsList) {
-			        if (checkURIMatching(matchingRequestURI, request)) {
-			        	response = dynamicResponseURIs.get(matchingRequestURI).handle(request);
-			        }
-			        matchesTried++;
-		        }
+            ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>(dynamicResponseURIs.keySet());
+            compareMethodLength(dynamicResponseURIsAsList);
+            while (!foundProperClass && matchesTried != dynamicResponseURIs.keySet().size()) {
+                for (String matchingRequestURI : dynamicResponseURIsAsList) {
+                    foundProperClass = checkURIMatching(matchingRequestURI, request);
+                    if (foundProperClass) {
+                        response = dynamicResponseURIs.get(matchingRequestURI).handle(request);
+                    }
+                    matchesTried++;
+                }
             }
             if (response == null) {
                 response = new StaticGetResponse(Paths.get(directory), mimeTypes).handle(request);
@@ -63,23 +62,11 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-	private void compareMethodLength(ArrayList<String> dynamicResponseURIsAsList) {
-		Collections.sort(dynamicResponseURIsAsList, new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				int length1 = o1.split("/").length;
-				int length2 = o2.split("/").length;
-				if (length1 == length2) {
-					return 0;
-				} else if (length1 > length2) {
-					return -1;
-				}
-				return 1;
-			}
-		});
-	}
+    private void compareMethodLength(ArrayList<String> dynamicResponseURIsAsList) {
+        dynamicResponseURIsAsList.sort((o1, o2) -> o2.split("/").length-o1.split("/").length);
+    }
 
-	private byte[] readRequestAsByteArray(BufferedInputStream bf) throws IOException {
+    private byte[] readRequestAsByteArray(BufferedInputStream bf) throws IOException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         boolean finished = false;
@@ -169,18 +156,14 @@ public class HandleRequestAndSendResponse implements Runnable {
                 throw new IllegalArgumentException("Unknown status code.");
         }
     }
-    
+
     private boolean checkURIMatching(String matchingRequestURI, Request request) {
         if (matchingRequestURI.contains("*")) {
             int indexOfStar = matchingRequestURI.indexOf('*');
-            try {
-	            return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
-
-            } catch (Exception e) {
-            	return matchingRequestURI.equals(request.getRequestURI());
-	        }
-        } else {
-            return matchingRequestURI.equals(request.getRequestURI());
+            if (request.getRequestURI().length() >= indexOfStar) {
+                return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
+            }
         }
+        return matchingRequestURI.equals(request.getRequestURI());
     }
 }
