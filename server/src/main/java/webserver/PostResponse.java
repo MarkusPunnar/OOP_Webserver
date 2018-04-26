@@ -13,10 +13,6 @@ public class PostResponse implements RequestHandler {
 
     private Path directory;
 
-    public PostResponse(Path directory) {
-        this.directory = directory;
-    }
-
     public Response handle(Request request) throws IOException {
         if (!request.getRequestMethod().equals("POST")) {
             return new Response(405, Collections.emptyMap(), null);
@@ -39,6 +35,13 @@ public class PostResponse implements RequestHandler {
     }
 
     public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/upload/*", new PostResponse(directory));
+        PostResponse pr = new PostResponse();
+        pr.setDirectory(directory);
+        patterns.put("/upload/*", pr);
+
+    }
+
+    public void setDirectory(Path directory){
+        this.directory = directory;
     }
 }

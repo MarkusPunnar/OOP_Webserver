@@ -13,10 +13,6 @@ public class DeleteResponse implements RequestHandler {
 
     private Path directory;
 
-    public DeleteResponse(Path directory) {
-        this.directory = directory;
-    }
-
     public Response handle(Request request) throws IOException {
         if (!request.getRequestMethod().equals("DELETE")) {
             return new Response(405, Collections.emptyMap(), null);
@@ -46,6 +42,14 @@ public class DeleteResponse implements RequestHandler {
     }
 
     public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/delete/*", new DeleteResponse(directory));
+        DeleteResponse dr = new DeleteResponse();
+        dr.setDirectory(directory);
+        patterns.put("/delete/*", dr);
+
     }
+
+    public void setDirectory(Path directory) {
+        this.directory = directory;
+    }
+
 }

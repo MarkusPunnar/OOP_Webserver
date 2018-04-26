@@ -22,16 +22,23 @@ public class HandleRequestAndSendResponse implements Runnable {
         this.mimeTypes = mimeTypes;
     }
 
+    public String getDirectory() {
+        return directory;
+    }
+
     @Override
     public void run() {
         Response response = null;
-        //List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
+        List<RequestHandler> dynamicResponseClasses = createDynamicResponseObjects();
+
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.register(dynamicResponseURIs);
         }
-        /*for (RequestHandler responseClass : dynamicResponseClasses) {
+
+        for (RequestHandler responseClass : dynamicResponseClasses) {
             responseClass.register(dynamicResponseURIs);
-        }*/
+        }
+
         try {
             Request request = readRequest(socket);
             boolean foundProperClass = false;
@@ -154,19 +161,19 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-   /* private List<RequestHandler> createDynamicResponseObjects() {
+    private List<RequestHandler> createDynamicResponseObjects() {
+
         List<RequestHandler> responseObjects = new ArrayList<>();
-        CurrentDateTime currentDate = new CurrentDateTime();
-        CurrentWeather weather = new CurrentWeather();
-        PostResponse postResponseClass = new PostResponse(Paths.get(directory));
-        DeleteResponse deleteResponseClass = new DeleteResponse(Paths.get(directory));
-        responseObjects.add(currentDate);
-        responseObjects.add(weather);
+
+        PostResponse postResponseClass = new PostResponse();
+        postResponseClass.setDirectory(Paths.get(directory));
+        DeleteResponse deleteResponseClass = new DeleteResponse();
+        deleteResponseClass.setDirectory(Paths.get(directory));
         responseObjects.add(postResponseClass);
         responseObjects.add(deleteResponseClass);
         return responseObjects;
     }
-*/
+
     private boolean checkURIMatching(String matchingRequestURI, Request request) {
         if (matchingRequestURI.contains("*")) {
             int indexOfStar = matchingRequestURI.indexOf('*');
