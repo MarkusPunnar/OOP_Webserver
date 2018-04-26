@@ -35,9 +35,11 @@ public class HandleRequestAndSendResponse implements Runnable {
             requestHandler.register(dynamicResponseURIs);
         }
 
-        /*for (RequestHandler responseClass : dynamicResponseClasses) {
+        /*
+        for (RequestHandler responseClass : dynamicResponseClasses) {
             responseClass.register(dynamicResponseURIs);
-        }*/
+        }
+        */
 
         try {
             Request request = readRequest(socket);
@@ -175,13 +177,10 @@ public class HandleRequestAndSendResponse implements Runnable {
     private boolean checkURIMatching(String matchingRequestURI, Request request) {
         if (matchingRequestURI.contains("*")) {
             int indexOfStar = matchingRequestURI.indexOf('*');
-            try {
+            if (request.getRequestURI().length() >= indexOfStar) {
 	            return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
-            } catch (Exception e) {
-            	return matchingRequestURI.equals(request.getRequestURI());
-	        }
-        } else {
-            return matchingRequestURI.equals(request.getRequestURI());
+            }
         }
+	    return matchingRequestURI.equals(request.getRequestURI());
     }
 }

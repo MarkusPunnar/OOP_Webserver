@@ -22,7 +22,7 @@ public class WebServer {
             }
             System.out.println("Server file directory set as " + dirName);
             System.out.println("Ready for clients to connect");
-            byte[] mimeTypesAsArray = ClasspathUtil.readFileFromClasspath("extensions.txt");
+            byte[] mimeTypesAsArray = WebServerUtil.readFileFromClasspath("extensions.txt");
             String[] mimeTypesAsString = new String(mimeTypesAsArray, "UTF-8").split("\n");
             for (String mimeType : mimeTypesAsString) {
                 String[] mimeInfo = mimeType.split(" ");
