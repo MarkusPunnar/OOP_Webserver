@@ -52,10 +52,8 @@ public class RegisterPlugin implements RequestHandler {
         return new Response(200, Collections.emptyMap(), null);
     }
 
-    public void register(Map<String, RequestHandler> patterns, ServerConfig sc) {
-        RegisterPlugin register = new RegisterPlugin();
-        register.initialize(sc);
-        patterns.put("/register", register);
+    public void register(Map<String, RequestHandler> patterns) {
+        patterns.put("/register", this);
     }
 
     public void initialize(ServerConfig sc) {

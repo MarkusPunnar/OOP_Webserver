@@ -22,7 +22,6 @@ public class PostResponse implements RequestHandler {
         byte[] body = null;
         String uploadedFileName = request.getRequestURI().substring(8);
         Path filePath = Paths.get(directory.toString(), uploadedFileName);
-        System.out.println(filePath.toString());
         if (Files.exists(filePath) || request.getRequestURI().equals("/")) {
             statusCode = 400;
         } else {
@@ -39,10 +38,8 @@ public class PostResponse implements RequestHandler {
         this.directory = sc.getDirectory();
     }
 
-    public void register(Map<String, RequestHandler> patterns, ServerConfig sc) {
-        PostResponse pr = new PostResponse();
-        pr.initialize(sc);
-        patterns.put("/upload/*", pr);
+    public void register(Map<String, RequestHandler> patterns) {
+        patterns.put("/upload/*", this);
 
     }
 }

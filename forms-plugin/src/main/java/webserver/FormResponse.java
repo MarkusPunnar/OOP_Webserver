@@ -24,8 +24,8 @@ public class FormResponse implements RequestHandler {
         return new Response(statusCode, responseHeaders, body);
     }
 
-    public void register(Map<String, RequestHandler> patterns, ServerConfig sc) {
-        patterns.put("/form/test", new FormResponse());
+    public void register(Map<String, RequestHandler> patterns) {
+        patterns.put("/form/test", this);
     }
 
     @Override

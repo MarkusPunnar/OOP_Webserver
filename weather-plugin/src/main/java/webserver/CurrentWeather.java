@@ -21,8 +21,8 @@ public class CurrentWeather implements RequestHandler {
         }
     }
 
-    public void register(Map<String, RequestHandler> patterns, ServerConfig sc) {
-        patterns.put("/weather", new CurrentWeather());
+    public void register(Map<String, RequestHandler> patterns) {
+        patterns.put("/weather", this);
     }
 
     @Override
