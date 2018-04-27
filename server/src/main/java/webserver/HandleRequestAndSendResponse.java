@@ -12,30 +12,26 @@ public class HandleRequestAndSendResponse implements Runnable {
     private Socket socket;
     private String directory;
     private Map<String, String> mimeTypes;
-    private Map<String, RequestHandler> dynamicResponseURIs = new HashMap<>();
+    private Map<String, RequestHandler> dynamicResponseURIs;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
-    public HandleRequestAndSendResponse(Socket socket, String directory, Map<String, String> mimeTypes) {
+    public HandleRequestAndSendResponse(Socket socket, String directory, Map<String, String> mimeTypes, Map<String, RequestHandler> dynamicResponseURIs) {
         this.socket = socket;
         this.directory = directory;
         this.mimeTypes = mimeTypes;
+        this.dynamicResponseURIs = dynamicResponseURIs;
     }
 
     @Override
     public void run() {
         Response response = null;
-        ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(directory));
-        for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
-            requestHandler.initialize(motherOfAllPlugins);
-            requestHandler.register(dynamicResponseURIs);
-        }
         try {
             Request request = readRequest(socket);
             boolean foundProperClass = false;
             int matchesTried = 0;
             ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>(dynamicResponseURIs.keySet());
-            compareMethodLength(dynamicResponseURIsAsList);
+	        compareMethodLength(dynamicResponseURIsAsList);
             while (!foundProperClass && matchesTried != dynamicResponseURIs.keySet().size()) {
                 for (String matchingRequestURI : dynamicResponseURIsAsList) {
                     foundProperClass = checkURIMatching(matchingRequestURI, request);

@@ -3,8 +3,10 @@ package webserver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 public class WebServer {
 
@@ -28,9 +30,15 @@ public class WebServer {
                 String[] mimeInfo = mimeType.split(" ");
                 mimeTypes.put(mimeInfo[0], mimeInfo[1]);
             }
+            Map<String, RequestHandler> dynamicResponseURIs = new HashMap<>();
+            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName));
+            for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
+                requestHandler.initialize(motherOfAllPlugins);
+                requestHandler.register(dynamicResponseURIs);
+            }
             while (true) {
                 Socket socket = ss.accept();
-                Thread thread = new Thread(new HandleRequestAndSendResponse(socket, dirName, mimeTypes));
+                Thread thread = new Thread(new HandleRequestAndSendResponse(socket, dirName, mimeTypes, dynamicResponseURIs));
                 thread.start();
             }
         }
