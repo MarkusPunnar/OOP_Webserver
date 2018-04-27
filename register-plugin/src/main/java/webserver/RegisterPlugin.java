@@ -3,9 +3,11 @@ package webserver;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class RegisterPlugin implements RequestHandler {
@@ -16,18 +18,24 @@ public class RegisterPlugin implements RequestHandler {
     public Response handle(Request request) throws Exception {
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
+        Path writeToFilePath = Paths.get(directory.toString(), "passwords.txt");
         Map<String, String> dataMap = request.bodyToForm();
         if (dataMap == null) {
             return new Response(400, Collections.emptyMap(), null);
         }
         String userName = dataMap.get("username");
+        try (Scanner sc = new Scanner(writeToFilePath.toFile(), "UTF-8")) {
+            while (sc.hasNextLine()) {
+                String user = sc.nextLine();
+                userNames.add(user.split(": ")[0]);
+            }
+        }
         if (userNames.contains(userName)) {
             body = "Username already exists".getBytes("UTF-8");
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Content-Type", "text/plain");
             return new Response(400, responseHeaders, body);
         }
-        userNames.add(userName);
         String pw = dataMap.get("password");
         String confirmPw = dataMap.get("confirm_password");
         if (!pw.equals(confirmPw)) {
@@ -36,9 +44,10 @@ public class RegisterPlugin implements RequestHandler {
             responseHeaders.put("Content-Type", "text/plain");
             return new Response(400, responseHeaders, body);
         }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(Paths.get(directory.toString(), "passwords.txt").toString()))) {
-            String hashedPw = BCrypt.hashpw(pw, BCrypt.gensalt());
+        String hashedPw = BCrypt.hashpw(pw, BCrypt.gensalt());
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(writeToFilePath, StandardOpenOption.APPEND)))) {
             writer.write(userName + ": " + hashedPw);
+            writer.newLine();
         }
         return new Response(200, Collections.emptyMap(), null);
     }
