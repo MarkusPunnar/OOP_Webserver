@@ -31,14 +31,14 @@ public class WebServer {
                 mimeTypes.put(mimeInfo[0], mimeInfo[1]);
             }
             Map<String, RequestHandler> dynamicResponseURIs = new HashMap<>();
-            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName));
+	        ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, dynamicResponseURIs);
             for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
                 requestHandler.initialize(motherOfAllPlugins);
                 requestHandler.register(dynamicResponseURIs);
             }
             while (true) {
                 Socket socket = ss.accept();
-                Thread thread = new Thread(new HandleRequestAndSendResponse(socket, dirName, mimeTypes, dynamicResponseURIs));
+                Thread thread = new Thread(new HandleRequestAndSendResponse(socket, motherOfAllPlugins));
                 thread.start();
             }
         }

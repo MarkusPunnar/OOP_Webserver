@@ -16,11 +16,11 @@ public class HandleRequestAndSendResponse implements Runnable {
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
-    public HandleRequestAndSendResponse(Socket socket, String directory, Map<String, String> mimeTypes, Map<String, RequestHandler> dynamicResponseURIs) {
+    public HandleRequestAndSendResponse(Socket socket, ServerConfig serverConfig) {
         this.socket = socket;
-        this.directory = directory;
-        this.mimeTypes = mimeTypes;
-        this.dynamicResponseURIs = dynamicResponseURIs;
+        this.directory = serverConfig.getDirectoryAsString();
+        this.mimeTypes = serverConfig.getMimeTypes();
+        this.dynamicResponseURIs = serverConfig.getDynamicResponseURIs();
     }
 
     @Override
