@@ -12,11 +12,21 @@ public class Request {
     private byte[] body;
     private String requestMethod;
     private String requestURI;
+    private String[] parameters;
 
-
-    public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) {
+	public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) {
+    	if (!requestURI.contains("?")) {
+		    this.requestURI = requestURI;
+	    } else {
+    		String[] requestSplit = requestURI.split("/");
+    		requestURI = "";
+		    for (int i = 0; i < requestSplit.length-1; i++) {
+			    requestURI = requestURI + "/" + requestSplit[i];
+		    }
+			this.parameters = requestSplit[requestSplit.length-1].substring(1).split("&");
+		    this.requestURI = requestURI;
+	    }
         this.requestMethod = requestMethod;
-        this.requestURI = requestURI;
         this.headers = headers;
         this.body = body;
     }
@@ -62,5 +72,11 @@ public class Request {
         return requestURI;
     }
 
+	public String[] getParameters() {
+		if (parameters != null) {
+			return parameters;
+		}
+		return null;
+	}
 }
 
