@@ -27,8 +27,8 @@ public class HandleRequestAndSendResponse implements Runnable {
         Response response = null;
         ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(directory));
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
-            requestHandler.register(dynamicResponseURIs);
             requestHandler.initialize(motherOfAllPlugins);
+            requestHandler.register(dynamicResponseURIs);
         }
         try {
             Request request = readRequest(socket);

@@ -3,7 +3,6 @@ package webserver;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,7 +44,7 @@ public class RegisterPlugin implements RequestHandler {
             return new Response(400, responseHeaders, body);
         }
         String hashedPw = BCrypt.hashpw(pw, BCrypt.gensalt());
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(writeToFilePath, StandardOpenOption.APPEND)))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(writeToFilePath, StandardOpenOption.APPEND)) {
             writer.write(userName + ": " + hashedPw);
             writer.newLine();
         }
