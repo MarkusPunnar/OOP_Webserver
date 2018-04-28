@@ -4,9 +4,9 @@ import java.util.Map;
 
 public interface RequestHandler {
 
-   Response handle(Request request) throws Exception;
+    Response handle(Request request) throws Exception;
 
-   void register(Map<String, RequestHandler> patterns);
+    void register(Map<String, RequestHandler> patterns);
 
-   void initialize(ServerConfig sc);
+    void initialize(ServerConfig sc);
 }
