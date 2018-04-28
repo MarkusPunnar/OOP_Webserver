@@ -12,19 +12,20 @@ public class Request {
     private byte[] body;
     private String requestMethod;
     private String requestURI;
-    private String[] parameters;
+    private HashMap<String, String> parameters = new HashMap<>();
 
-    public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) {
+    public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) throws UnsupportedEncodingException {
+        requestURI = URLDecoder.decode(requestURI, "UTF-8");
         if (!requestURI.contains("?")) {
             this.requestURI = requestURI;
         } else {
-            String[] requestSplit = requestURI.split("/");
-            requestURI = "";
-            for (int i = 0; i < requestSplit.length - 1; i++) {
-                requestURI = requestURI + "/" + requestSplit[i];
+            int parameterStart = requestURI.indexOf("?");
+            this.requestURI = requestURI.substring(0,parameterStart);
+            String[] parameterArray = requestURI.substring(parameterStart+1).split("&");
+            for (String s : parameterArray) {
+                String[] parameterValues = s.split("=");
+                parameters.put(parameterValues[0], parameterValues[1]);
             }
-            this.parameters = requestSplit[requestSplit.length - 1].substring(1).split("&");
-            this.requestURI = requestURI;
         }
         this.requestMethod = requestMethod;
         this.headers = headers;
@@ -72,11 +73,8 @@ public class Request {
         return requestURI;
     }
 
-    public String[] getParameters() {
-        if (parameters != null) {
-            return parameters;
-        }
-        return null;
+    public HashMap<String, String> getParameters() {
+        return parameters;
     }
 }
 
