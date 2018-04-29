@@ -11,7 +11,7 @@ public class HandleRequestAndSendResponse implements Runnable {
 
     private Socket socket;
     private String directory;
-    private FilterChain chain;
+    private List<Filter> filters;
     private Map<String, String> mimeTypes;
     private Map<String, RequestHandler> dynamicResponseURIs;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
@@ -22,7 +22,7 @@ public class HandleRequestAndSendResponse implements Runnable {
         this.directory = serverConfig.getDirectoryAsString();
         this.mimeTypes = serverConfig.getMimeTypes();
         this.dynamicResponseURIs = serverConfig.getDynamicResponseURIs();
-        this.chain = serverConfig.getChain();
+        this.filters = serverConfig.getFilters();
     }
 
     @Override
@@ -30,6 +30,7 @@ public class HandleRequestAndSendResponse implements Runnable {
         Response response = null;
         try {
             Request request = readRequest(socket);
+            FilterChain chain = new FilterChain(filters);
             boolean foundProperClass = false;
             int matchesTried = 0;
             ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>(dynamicResponseURIs.keySet());
@@ -39,7 +40,7 @@ public class HandleRequestAndSendResponse implements Runnable {
                     foundProperClass = checkURIMatching(matchingRequestURI, request);
                     if (foundProperClass) {
                         chain.setHandler(dynamicResponseURIs.get(matchingRequestURI));
-                        response = chain.filter(request, null);
+                        response = chain.filter(request);
                     }
                     matchesTried++;
                 }

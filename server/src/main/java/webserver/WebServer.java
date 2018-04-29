@@ -4,9 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 
 public class WebServer {
 
@@ -30,10 +28,9 @@ public class WebServer {
                 String[] mimeInfo = mimeType.split(" ");
                 mimeTypes.put(mimeInfo[0], mimeInfo[1]);
             }
+            List<Filter> filters = new WebServer().createFilterInstances();
             Map<String, RequestHandler> dynamicResponseURIs = new HashMap<>();
-            FilterChain filterChain = new FilterChain();
-            filterChain.createFilterInstances();
-            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, dynamicResponseURIs, filterChain);
+            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, dynamicResponseURIs, filters);
             for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
                 requestHandler.initialize(motherOfAllPlugins);
                 requestHandler.register(dynamicResponseURIs);
@@ -44,5 +41,11 @@ public class WebServer {
                 thread.start();
             }
         }
+    }
+
+    private List<Filter> createFilterInstances() {
+        List<Filter> appliedFilters = new ArrayList<>();
+        appliedFilters.add(new LoginFilter());
+        return appliedFilters;
     }
 }

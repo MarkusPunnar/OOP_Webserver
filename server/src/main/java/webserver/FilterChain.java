@@ -1,37 +1,28 @@
 package webserver;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FilterChain {
 
-    private List<Filter> appliedFilters = new ArrayList<>();
+    private List<Filter> appliedFilters;
     private RequestHandler handler;
+    private Filter lastCalled = null;
 
-    public Response filter(Request request, Filter lastCalled) throws Exception {
+    public FilterChain(List<Filter> appliedFilters) {
+        this.appliedFilters = appliedFilters;
+    }
+
+    public Response filter(Request request) throws Exception {
         Response response = null;
-        Filter toCall;
         int index = appliedFilters.indexOf(lastCalled);
         if (index != appliedFilters.size() - 1) {
-            if (lastCalled == null) {
-                toCall = appliedFilters.get(0);
-            } else {
-                toCall = appliedFilters.get(appliedFilters.indexOf(lastCalled) + 1);
-            }
-            response = toCall.doFilter(request, this);
+            lastCalled = appliedFilters.get(appliedFilters.indexOf(lastCalled) + 1);
+            response = lastCalled.doFilter(request, this);
         }
-        if (response == null) {
+        if (index == appliedFilters.size() - 1) {
             response = handler.handle(request);
         }
         return response;
-    }
-
-    public void createFilterInstances() {
-        appliedFilters.add(new LoginFilter());
-    }
-
-    public List<Filter> getAppliedFilters() {
-        return appliedFilters;
     }
 
     public void setHandler(RequestHandler handler) {

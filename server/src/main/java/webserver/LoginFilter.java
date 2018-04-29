@@ -13,7 +13,7 @@ public class LoginFilter implements Filter {
         Response response;
         Map<String, String> attributes = request.getRequestAttributes();
         if (!request.getRequestURI().startsWith("/weather")) {
-            response = chain.filter(request, this);
+            response = chain.filter(request);
             if (attributes.containsKey("loginToken")) {
                 loggedUsers.add(attributes.get("loginToken"));
                 attributes.remove("loginToken");
@@ -21,7 +21,7 @@ public class LoginFilter implements Filter {
         } else {
             Map<String, String> responseHeaders = new HashMap<>();
             if (request.getHeaders().containsKey("Cookie") && loggedUsers.contains(request.getHeaders().get("Cookie").split("=")[1])) {
-                return chain.filter(request, this);
+                return chain.filter(request);
             }
             responseHeaders.put("Location", "/defaultwebsite/loginform.html");
             return new Response(302, responseHeaders, null);
