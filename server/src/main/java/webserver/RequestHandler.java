@@ -9,4 +9,5 @@ public interface RequestHandler {
    void register(Map<String, RequestHandler> patterns);
 
    void initialize(ServerConfig sc);
+
 }

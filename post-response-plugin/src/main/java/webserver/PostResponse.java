@@ -40,6 +40,5 @@ public class PostResponse implements RequestHandler {
 
     public void register(Map<String, RequestHandler> patterns) {
         patterns.put("/upload/*", this);
-
     }
 }
