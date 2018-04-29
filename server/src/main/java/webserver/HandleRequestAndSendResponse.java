@@ -9,20 +9,14 @@ import java.util.*;
 
 public class HandleRequestAndSendResponse implements Runnable {
 
-    private Socket socket;
-    private String directory;
-    private List<Filter> filters;
-    private Map<String, String> mimeTypes;
-    private Map<String, RequestHandler> dynamicResponseURIs;
+    private final Socket socket;
+    private final ServerConfig serverConfig;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
     private final byte[] finalRequestBytes = "\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
     public HandleRequestAndSendResponse(Socket socket, ServerConfig serverConfig) {
         this.socket = socket;
-        this.directory = serverConfig.getDirectoryAsString();
-        this.mimeTypes = serverConfig.getMimeTypes();
-        this.dynamicResponseURIs = serverConfig.getDynamicResponseURIs();
-        this.filters = serverConfig.getFilters();
+        this.serverConfig = serverConfig;
     }
 
     @Override
@@ -30,23 +24,22 @@ public class HandleRequestAndSendResponse implements Runnable {
         Response response = null;
         try {
             Request request = readRequest(socket);
-            FilterChain chain = new FilterChain(filters);
             boolean foundProperClass = false;
             int matchesTried = 0;
-            ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>(dynamicResponseURIs.keySet());
+            ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>(serverConfig.getDynamicResponseURIs().keySet());
             compareMethodLength(dynamicResponseURIsAsList);
-            while (!foundProperClass && matchesTried != dynamicResponseURIs.keySet().size()) {
+            while (!foundProperClass && matchesTried != serverConfig.getDynamicResponseURIs().keySet().size()) {
                 for (String matchingRequestURI : dynamicResponseURIsAsList) {
                     foundProperClass = checkURIMatching(matchingRequestURI, request);
                     if (foundProperClass) {
-                        chain.setHandler(dynamicResponseURIs.get(matchingRequestURI));
+                        FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(matchingRequestURI));
                         response = chain.filter(request);
                     }
                     matchesTried++;
                 }
             }
             if (response == null) {
-                response = new StaticGetResponse(Paths.get(directory), mimeTypes).handle(request);
+                response = new StaticGetResponse(Paths.get(serverConfig.getDirectoryAsString()), serverConfig.getMimeTypes()).handle(request);
             }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(constructStatusLine(response).getBytes("UTF-8"));

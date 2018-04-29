@@ -28,7 +28,7 @@ public class WebServer {
                 String[] mimeInfo = mimeType.split(" ");
                 mimeTypes.put(mimeInfo[0], mimeInfo[1]);
             }
-            List<Filter> filters = new WebServer().createFilterInstances();
+            List<Filter> filters = createFilterInstances();
             Map<String, RequestHandler> dynamicResponseURIs = new HashMap<>();
             ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, dynamicResponseURIs, filters);
             for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
@@ -43,7 +43,7 @@ public class WebServer {
         }
     }
 
-    private List<Filter> createFilterInstances() {
+    private static List<Filter> createFilterInstances() {
         List<Filter> appliedFilters = new ArrayList<>();
         appliedFilters.add(new LoginFilter());
         return appliedFilters;
