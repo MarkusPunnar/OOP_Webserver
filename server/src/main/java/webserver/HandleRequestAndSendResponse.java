@@ -11,6 +11,7 @@ public class HandleRequestAndSendResponse implements Runnable {
 
     private Socket socket;
     private String directory;
+    private FilterChain chain;
     private Map<String, String> mimeTypes;
     private Map<String, RequestHandler> dynamicResponseURIs;
     private final byte[] finalBytes = "\r\n".getBytes(StandardCharsets.UTF_8);
@@ -21,6 +22,7 @@ public class HandleRequestAndSendResponse implements Runnable {
         this.directory = serverConfig.getDirectoryAsString();
         this.mimeTypes = serverConfig.getMimeTypes();
         this.dynamicResponseURIs = serverConfig.getDynamicResponseURIs();
+        this.chain = serverConfig.getChain();
     }
 
     @Override
@@ -36,7 +38,8 @@ public class HandleRequestAndSendResponse implements Runnable {
                 for (String matchingRequestURI : dynamicResponseURIsAsList) {
                     foundProperClass = checkURIMatching(matchingRequestURI, request);
                     if (foundProperClass) {
-                        response = dynamicResponseURIs.get(matchingRequestURI).handle(request);
+                        chain.setHandler(dynamicResponseURIs.get(matchingRequestURI));
+                        response = chain.filter(request, null);
                     }
                     matchesTried++;
                 }
@@ -141,6 +144,8 @@ public class HandleRequestAndSendResponse implements Runnable {
                 return "OK";
             case 201:
                 return "Created";
+            case 302:
+                return "Found";
             case 400:
                 return "Bad Request";
             case 404:

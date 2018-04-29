@@ -1,48 +1,31 @@
 package webserver;
 
-import org.mindrot.jbcrypt.BCrypt;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LoginFilter implements Filter {
 
-    private Path directory;
+    private List<String> loggedUsers = new ArrayList<>();
 
-    public Response doFilter(Request request) throws Exception {
-        Map<String, String> currentUsers = new HashMap<>();
-        List<String> loggedUsers = new ArrayList<>();
-        int statusCode;
-        Map<String, String> responseHeaders = new HashMap<>();
-        byte[] body = null;
-        Path usersFilePath = Paths.get(directory.toString(), "passwords.txt");
-        String insertedUsername;
-        String insertedPassword;
-        try (Scanner sc = new Scanner(System.in)) {
-            System.out.print("Username: ");
-            insertedUsername = sc.nextLine();
-            System.out.print("Password: ");
-            insertedPassword = sc.nextLine();
-        }
-        try (Scanner sc = new Scanner(usersFilePath.toFile(), "UTF-8")) {
-            while (sc.hasNextLine()) {
-                String user = sc.nextLine();
-                String[] userInfo = user.split(": ");
-                currentUsers.put(userInfo[0], userInfo[1]);
+    public Response doFilter(Request request, FilterChain chain) throws Exception {
+        Response response;
+        Map<String, String> attributes = request.getRequestAttributes();
+        if (!request.getRequestURI().startsWith("/weather")) {
+            response = chain.filter(request, this);
+            if (attributes.containsKey("loginToken")) {
+                loggedUsers.add(attributes.get("loginToken"));
+                attributes.remove("loginToken");
             }
-        }
-        if (currentUsers.get(insertedUsername) != null) {
-            if (BCrypt.checkpw(insertedPassword, currentUsers.get(insertedUsername))) {
-                String loginToken = BCrypt.gensalt(30);
-                loggedUsers.add(loginToken);
-                responseHeaders.put("Set-Cookie", "login="+loginToken);
+        } else {
+            Map<String, String> responseHeaders = new HashMap<>();
+            if (request.getHeaders().containsKey("Cookie") && loggedUsers.contains(request.getHeaders().get("Cookie").split("=")[1])) {
+                return chain.filter(request, this);
             }
+            responseHeaders.put("Location", "/defaultwebsite/loginform.html");
+            return new Response(302, responseHeaders, null);
         }
-        return null;
-    }
-
-    public void initialize(ServerConfig sc) {
-        this.directory = sc.getDirectory();
+        return response;
     }
 }

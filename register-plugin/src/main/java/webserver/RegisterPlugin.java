@@ -3,6 +3,7 @@ package webserver;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.BufferedWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +31,7 @@ public class RegisterPlugin implements RequestHandler {
             }
         }
         if (userNames.contains(userName)) {
-            body = "Username already exists".getBytes("UTF-8");
+            body = "Username already exists".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Content-Type", "text/plain");
             return new Response(400, responseHeaders, body);
@@ -38,7 +39,7 @@ public class RegisterPlugin implements RequestHandler {
         String pw = dataMap.get("password");
         String confirmPw = dataMap.get("confirm_password");
         if (!pw.equals(confirmPw)) {
-            body = "Passwords don't match".getBytes("UTF-8");
+            body = "Passwords don't match".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Content-Type", "text/plain");
             return new Response(400, responseHeaders, body);

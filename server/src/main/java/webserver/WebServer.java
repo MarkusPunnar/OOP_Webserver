@@ -31,7 +31,9 @@ public class WebServer {
                 mimeTypes.put(mimeInfo[0], mimeInfo[1]);
             }
             Map<String, RequestHandler> dynamicResponseURIs = new HashMap<>();
-            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, dynamicResponseURIs);
+            FilterChain filterChain = new FilterChain();
+            filterChain.createFilterInstances();
+            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, dynamicResponseURIs, filterChain);
             for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
                 requestHandler.initialize(motherOfAllPlugins);
                 requestHandler.register(dynamicResponseURIs);

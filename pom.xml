@@ -9,14 +9,15 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-  <modules>
-    <module>server</module>
-    <module>forms-plugin</module>
-    <module>current-date-plugin</module>
-    <module>weather-plugin</module>
-    <module>delete-response-plugin</module>
-    <module>post-response-plugin</module>
-    <module>register-plugin</module>
-  </modules>
-    
+    <modules>
+        <module>server</module>
+        <module>forms-plugin</module>
+        <module>current-date-plugin</module>
+        <module>weather-plugin</module>
+        <module>delete-response-plugin</module>
+        <module>post-response-plugin</module>
+        <module>register-plugin</module>
+        <module>login-plugin</module>
+    </modules>
+
 </project>

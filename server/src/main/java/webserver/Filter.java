@@ -2,7 +2,6 @@ package webserver;
 
 public interface Filter {
 
-    Response doFilter(Request request) throws Exception;
+    Response doFilter(Request request, FilterChain chain) throws Exception;
 
-    void initialize(ServerConfig sc);
 }

@@ -12,7 +12,8 @@ public class Request {
     private byte[] body;
     private String requestMethod;
     private String requestURI;
-    private HashMap<String, String> parameters = new HashMap<>();
+    private Map<String, String> parameters = new HashMap<>();
+    private Map<String, String> requestAttributes = new HashMap<>();
 
     public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) throws UnsupportedEncodingException {
         requestURI = URLDecoder.decode(requestURI, "UTF-8");
@@ -73,8 +74,12 @@ public class Request {
         return requestURI;
     }
 
-    public HashMap<String, String> getParameters() {
+    public Map<String, String> getParameters() {
         return parameters;
+    }
+
+    public Map<String, String> getRequestAttributes() {
+        return requestAttributes;
     }
 }
 
