@@ -16,8 +16,7 @@
         <module>weather-plugin</module>
         <module>delete-response-plugin</module>
         <module>post-response-plugin</module>
-        <module>register-plugin</module>
-        <module>login-plugin</module>
+        <module>authentication-plugin</module>
     </modules>
 
 </project>

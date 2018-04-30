@@ -45,7 +45,9 @@ public class WebServer {
 
     private List<Filter> createFilterInstances() {
         List<Filter> appliedFilters = new ArrayList<>();
-        appliedFilters.add(new LoginFilter());
+        for (Filter filter: ServiceLoader.load(Filter.class)) {
+            appliedFilters.add(filter);
+        }
         return appliedFilters;
     }
 
