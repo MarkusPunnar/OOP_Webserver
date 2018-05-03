@@ -16,15 +16,17 @@ public class Request {
     private Map<String, String> requestAttributes = new HashMap<>();
 
     public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) throws UnsupportedEncodingException {
-        requestURI = URLDecoder.decode(requestURI, "UTF-8");
-        if (!requestURI.contains("?")) {
-            this.requestURI = requestURI;
+        int parameterStart = requestURI.indexOf("?");
+        if (parameterStart == -1) {
+            this.requestURI = URLDecoder.decode(requestURI, "UTF-8");
         } else {
-            int parameterStart = requestURI.indexOf("?");
-            this.requestURI = requestURI.substring(0,parameterStart);
+            this.requestURI = URLDecoder.decode(requestURI.substring(0,parameterStart), "UTF-8");
             String[] parameterArray = requestURI.substring(parameterStart+1).split("&");
             for (String s : parameterArray) {
                 String[] parameterValues = s.split("=");
+                for (int i = 0; i < parameterValues.length; i++) {
+                    parameterValues[i] = URLDecoder.decode(parameterValues[i], "UTF-8");
+                }
                 parameters.put(parameterValues[0], parameterValues[1]);
             }
         }
