@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class CurrentWeather implements RequestHandler {
 
-
+    @Mapping(URI = "/weather")
     public Response handle(Request request) {
         try {
             Map<String, String> responseHeaders = new HashMap<>();
@@ -19,10 +19,6 @@ public class CurrentWeather implements RequestHandler {
         } catch (UnsupportedEncodingException e) {
             return new Response(500, Collections.emptyMap(), null);
         }
-    }
-
-    public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/weather", this);
     }
 
     @Override

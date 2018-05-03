@@ -15,6 +15,7 @@ public class RegisterPlugin implements RequestHandler {
     private Path directory;
     private Set<String> userNames = new HashSet<>();
 
+    @Mapping(URI = "/register", method = "POST")
     public Response handle(Request request) throws Exception {
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
@@ -50,10 +51,6 @@ public class RegisterPlugin implements RequestHandler {
             writer.newLine();
         }
         return new Response(200, Collections.emptyMap(), null);
-    }
-
-    public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/register", this);
     }
 
     public void initialize(ServerConfig sc) {

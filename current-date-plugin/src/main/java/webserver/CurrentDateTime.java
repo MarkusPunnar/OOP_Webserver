@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CurrentDateTime implements RequestHandler {
-    
+
+    @Mapping(URI = "/date/now")
     public Response handle(Request request) {
         try {
             Map<String, String> responseHeaders = new HashMap<>();
@@ -19,10 +20,6 @@ public class CurrentDateTime implements RequestHandler {
         } catch (UnsupportedEncodingException e) {
             return new Response(400, Collections.emptyMap(), null);
         }
-    }
-
-    public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/date/now", this);
     }
 
     @Override

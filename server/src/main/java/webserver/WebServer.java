@@ -34,7 +34,7 @@ public class WebServer {
             Map<String, String> mimeTypes = readMimeTypesFromFile();
             List<Filter> filters = createFilterInstances();
             ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, new HashMap<>(), filters);
-            createPluginInstances(motherOfAllPlugins);
+            createPluginInstances(motherOfAllPlugins, motherOfAllPlugins.getDynamicResponseURIs());
             while (true) {
                 Socket socket = ss.accept();
                 Thread thread = new Thread(new HandleRequestAndSendResponse(socket, motherOfAllPlugins));
@@ -45,7 +45,7 @@ public class WebServer {
 
     private List<Filter> createFilterInstances() {
         List<Filter> appliedFilters = new ArrayList<>();
-        for (Filter filter: ServiceLoader.load(Filter.class)) {
+        for (Filter filter : ServiceLoader.load(Filter.class)) {
             appliedFilters.add(filter);
         }
         return appliedFilters;
@@ -62,10 +62,11 @@ public class WebServer {
         return mimeMap;
     }
 
-    private void createPluginInstances(ServerConfig motherOfAllPlugins) {
+    private void createPluginInstances(ServerConfig motherOfAllPlugins, Map<MappingInfo, RequestHandler> pluginMap) {
+        HandlerRegistration registration = new HandlerRegistration();
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.initialize(motherOfAllPlugins);
-            requestHandler.register(motherOfAllPlugins.getDynamicResponseURIs());
+            registration.register(requestHandler, pluginMap);
         }
     }
 }

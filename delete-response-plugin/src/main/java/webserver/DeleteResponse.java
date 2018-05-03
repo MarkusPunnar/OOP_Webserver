@@ -1,11 +1,9 @@
 package webserver;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,10 +11,8 @@ public class DeleteResponse implements RequestHandler {
 
     private Path directory;
 
+    @Mapping(URI = "/delete/*", method = "DELETE")
     public Response handle(Request request) throws IOException {
-        if (!request.getRequestMethod().equals("DELETE")) {
-            return new Response(405, Collections.emptyMap(), null);
-        }
         int statusCode = 0;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;
@@ -39,11 +35,6 @@ public class DeleteResponse implements RequestHandler {
             }
         }
         return new Response(statusCode, responseHeaders, body);
-    }
-
-    public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/delete/*", this);
-
     }
 
     @Override

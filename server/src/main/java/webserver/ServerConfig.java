@@ -8,10 +8,10 @@ public class ServerConfig {
 
     private Path directory;
     private Map<String, String> mimeTypes;
-    private Map<String, RequestHandler> dynamicResponseURIs;
+    private Map<MappingInfo, RequestHandler> dynamicResponseURIs;
     private List<Filter> filters;
 
-    public ServerConfig(Path directory, Map<String, String> mimeTypes, Map<String, RequestHandler> dynamicResponseURIs, List<Filter> filters) {
+    public ServerConfig(Path directory, Map<String, String> mimeTypes, Map<MappingInfo, RequestHandler> dynamicResponseURIs, List<Filter> filters) {
         this.directory = directory;
         this.mimeTypes = mimeTypes;
         this.dynamicResponseURIs = dynamicResponseURIs;
@@ -22,7 +22,7 @@ public class ServerConfig {
         return mimeTypes;
     }
 
-    public Map<String, RequestHandler> getDynamicResponseURIs() {
+    public Map<MappingInfo, RequestHandler> getDynamicResponseURIs() {
         return dynamicResponseURIs;
     }
 
