@@ -13,10 +13,8 @@ public class PostResponse implements RequestHandler {
 
     private Path directory;
 
+    @Mapping(URI = "/upload/*", method = "POST")
     public Response handle(Request request) throws IOException {
-        if (!request.getRequestMethod().equals("POST")) {
-            return new Response(405, Collections.emptyMap(), null);
-        }
         int statusCode;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body = null;
@@ -38,7 +36,4 @@ public class PostResponse implements RequestHandler {
         this.directory = sc.getDirectory();
     }
 
-    public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/upload/*", this);
-    }
 }

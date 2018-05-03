@@ -26,13 +26,13 @@ public class HandleRequestAndSendResponse implements Runnable {
             Request request = readRequest(socket);
             boolean foundProperClass = false;
             int matchesTried = 0;
-            ArrayList<String> dynamicResponseURIsAsList = new ArrayList<>(serverConfig.getDynamicResponseURIs().keySet());
-            compareMethodLength(dynamicResponseURIsAsList);
+            ArrayList<MappingInfo> dynamicResponseMappingInfoAsList = new ArrayList<>(serverConfig.getDynamicResponseURIs().keySet());
+            compareMethodLength(dynamicResponseMappingInfoAsList);
             while (!foundProperClass && matchesTried != serverConfig.getDynamicResponseURIs().keySet().size()) {
-                for (String matchingRequestURI : dynamicResponseURIsAsList) {
-                    foundProperClass = checkURIMatching(matchingRequestURI, request);
+                for (MappingInfo matchingRequestInfo : dynamicResponseMappingInfoAsList) {
+                    foundProperClass = checkURIMatching(matchingRequestInfo, request);
                     if (foundProperClass) {
-                        FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(matchingRequestURI));
+                        FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(matchingRequestInfo));
                         response = chain.filter(request);
                     }
                     matchesTried++;
@@ -56,8 +56,8 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-    private void compareMethodLength(ArrayList<String> dynamicResponseURIsAsList) {
-        dynamicResponseURIsAsList.sort((o1, o2) -> o2.split("/").length - o1.split("/").length);
+    private void compareMethodLength(ArrayList<MappingInfo> dynamicResponseURIsAsList) {
+        dynamicResponseURIsAsList.sort((o1, o2) -> o2.getRequestURI().split("/").length - o1.getRequestURI().split("/").length);
     }
 
     private byte[] readRequestAsByteArray(BufferedInputStream bf) throws IOException {
@@ -153,13 +153,15 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-    private boolean checkURIMatching(String matchingRequestURI, Request request) {
-        if (matchingRequestURI.contains("*")) {
-            int indexOfStar = matchingRequestURI.indexOf('*');
+    private boolean checkURIMatching(MappingInfo matchingRequestInfo, Request request) {
+        boolean URImatching = matchingRequestInfo.getRequestURI().equals(request.getRequestURI());
+        boolean methodMatching = matchingRequestInfo.getRequestMethod().equals(request.getRequestMethod());
+        if (matchingRequestInfo.getRequestURI().contains("*")) {
+            int indexOfStar = matchingRequestInfo.getRequestURI().indexOf('*');
             if (request.getRequestURI().length() >= indexOfStar) {
-                return matchingRequestURI.substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
+                URImatching = matchingRequestInfo.getRequestURI().substring(0, indexOfStar).equals(request.getRequestURI().substring(0, indexOfStar));
             }
         }
-        return matchingRequestURI.equals(request.getRequestURI());
+        return URImatching && methodMatching;
     }
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class FormResponse implements RequestHandler {
 
+    @Mapping(URI = "/form/test", method = "POST")
     public Response handle(Request request) throws UnsupportedEncodingException {
         int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
@@ -22,10 +23,6 @@ public class FormResponse implements RequestHandler {
         body = response.getBytes();
         System.out.println(response);
         return new Response(statusCode, responseHeaders, body);
-    }
-
-    public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/form/test", this);
     }
 
     @Override

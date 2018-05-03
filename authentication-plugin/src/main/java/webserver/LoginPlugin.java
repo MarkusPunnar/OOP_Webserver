@@ -14,6 +14,7 @@ public class LoginPlugin implements RequestHandler {
 
     private Path directory;
 
+    @Mapping(URI = "/login", method = "POST")
     public Response handle(Request request) throws Exception {
         Map<String, String> responseHeaders = new HashMap<>();
         Map<String, String> currentUsers = new HashMap<>();
@@ -47,10 +48,6 @@ public class LoginPlugin implements RequestHandler {
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             return new Response(400, responseHeaders, body);
         }
-    }
-
-    public void register(Map<String, RequestHandler> patterns) {
-        patterns.put("/login", this);
     }
 
     public void initialize(ServerConfig sc) {
