@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 public class WebServerUtil {
     public static byte[] readFileFromClasspath(String fileName) throws IOException {
-        try (InputStream is = WebServer.class.getClassLoader().getResourceAsStream(fileName)) {
+        try (InputStream is = WebServer.class.getClassLoader().getResourceAsStream("requiredfiles/" + fileName)) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int nRead;
             byte[] data = new byte[1024];
