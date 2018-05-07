@@ -1,6 +1,7 @@
 package webserver;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +25,5 @@ public class CurrentDateTime implements RequestHandler {
 
     @Override
     public void initialize(ServerConfig sc) {
-
     }
 }

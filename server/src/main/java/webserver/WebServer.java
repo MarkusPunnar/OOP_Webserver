@@ -62,7 +62,7 @@ public class WebServer {
         return mimeMap;
     }
 
-    private void createPluginInstances(ServerConfig motherOfAllPlugins, Map<MappingInfo, RequestHandler> pluginMap) {
+    private void createPluginInstances(ServerConfig motherOfAllPlugins, Map<MappingInfo, HandlerInfo> pluginMap) {
         HandlerRegistration registration = new HandlerRegistration();
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.initialize(motherOfAllPlugins);

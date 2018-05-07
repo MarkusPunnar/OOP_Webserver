@@ -5,18 +5,18 @@ import java.util.List;
 public class FilterChain {
 
     private List<Filter> appliedFilters;
-    private RequestHandler handler;
+    private HandlerInfo handlerInfo;
     private int lastCalled = -1;
 
-    public FilterChain(List<Filter> appliedFilters, RequestHandler handler) {
+    public FilterChain(List<Filter> appliedFilters, HandlerInfo handlerInfo) {
         this.appliedFilters = appliedFilters;
-        this.handler = handler;
+        this.handlerInfo = handlerInfo;
     }
 
     public Response filter(Request request) throws Exception {
         Response response;
         if (lastCalled == appliedFilters.size() - 1) {
-            response = handler.handle(request);
+            response = (Response) handlerInfo.getHandlerMethod().invoke(handlerInfo.getHandler(), request);
         }
         else {
             lastCalled++;
