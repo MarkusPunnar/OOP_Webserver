@@ -1,6 +1,6 @@
 # OOP_Webserver
 
-###IntelliJ õpetus serveri kasutamiseks
+### IntelliJ õpetus serveri kasutamiseks
 
 1) Ava projekt IntelliJ-s.
 2) Määra WebServeri classi (/server/src/main/java/webserver) configurationis Program Argumentiks kaust, kus soovid, et server jookseks.
@@ -8,7 +8,7 @@
 4) Käivita klassi WebServeri main meetod. 
 5) PROFIT $  € EEK
 
-###Käsurea õpetus serveri kasutamiseks
+### Käsurea õpetus serveri kasutamiseks
 
 1) Ava käsureal projekti juurkaust. 
 2) Jooksuta käsklus "mvn clean package", et luua pluginate jar failid.
