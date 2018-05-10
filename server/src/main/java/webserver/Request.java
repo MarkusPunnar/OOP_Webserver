@@ -4,18 +4,19 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Request {
 
-    private Map<String, String> headers;
+    private Map<String, List<String>> headers;
     private byte[] body;
     private String requestMethod;
     private String requestURI;
     private Map<String, String> parameters = new HashMap<>();
     private Map<String, String> requestAttributes = new HashMap<>();
 
-    public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) throws UnsupportedEncodingException {
+    public Request(String requestMethod, String requestURI, Map<String, List<String>> headers, byte[] body) throws UnsupportedEncodingException {
         int parameterStart = requestURI.indexOf("?");
         if (parameterStart == -1) {
             this.requestURI = URLDecoder.decode(requestURI, "UTF-8");
@@ -60,7 +61,7 @@ public class Request {
         return count;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<String, List<String>> getHeaders() {
         return headers;
     }
 

@@ -85,9 +85,9 @@ public class HandleRequestAndSendResponse implements Runnable {
         byte[] requestLineAndHeaders = readRequestAsByteArray(bf);
         String requestLineAndHeadersAsString = new String(requestLineAndHeaders, 0, requestLineAndHeaders.length);
         List<String> requestLineComponents = parseRequestLine(requestLineAndHeadersAsString);
-        Map<String, String> requestHeadersAsMap = readRequestHeadersToMap(requestLineAndHeadersAsString);
+        Map<String, List<String>> requestHeadersAsMap = readRequestHeadersToMap(requestLineAndHeadersAsString);
         if (requestHeadersAsMap.get("Content-Length") != null) {
-            int requestBodyLength = Integer.parseInt(requestHeadersAsMap.get("Content-Length"));
+            int requestBodyLength = Integer.parseInt(requestHeadersAsMap.get("Content-Length").get(0));
             requestBody = readRequestBodyAsBytes(requestBodyLength, bf);
         }
         return new Request(requestLineComponents.get(0), requestLineComponents.get(1), requestHeadersAsMap, requestBody);
@@ -103,13 +103,15 @@ public class HandleRequestAndSendResponse implements Runnable {
         return requestInfoAsList;
     }
 
-    private Map<String, String> readRequestHeadersToMap(String requestInfo) {
-        Map<String, String> requestHeadersAsMap = new HashMap<>();
+    private Map<String, List<String>> readRequestHeadersToMap(String requestInfo) {
+        Map<String, List<String>> requestHeadersAsMap = new HashMap<>();
         String[] requestHeadersArray = Arrays.copyOfRange(requestInfo.split("\r\n"), 1, requestInfo.split("\r\n").length);
         for (String requestHeader : requestHeadersArray) {
             String[] requestHeaderLine = requestHeader.split(": ");
             if (requestHeaderLine.length > 1) {
-                requestHeadersAsMap.put(requestHeaderLine[0], requestHeaderLine[1]);
+                List<String> list = new ArrayList<>();
+                list.add(requestHeaderLine[1]);
+                requestHeadersAsMap.put(requestHeaderLine[0], list);
             }
         }
         return requestHeadersAsMap;
