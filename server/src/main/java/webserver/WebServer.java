@@ -30,18 +30,18 @@ public class WebServer {
     }
 
     public void run() throws Exception {
-        try (ServerSocket ss = new ServerSocket(1337);
-             ServerSocket ss2 = new SSLHandler().getSSLHandler(1338)) {
+        try (ServerSocket httpSocket = new ServerSocket(1337);
+             ServerSocket httpsSocket = new SSLHandler().getSSLHandler(1338)) {
             Map<String, String> mimeTypes = readMimeTypesFromFile();
             List<Filter> filters = createFilterInstances();
             ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, new HashMap<>(), filters);
             createPluginInstances(motherOfAllPlugins, motherOfAllPlugins.getDynamicResponseURIs());
-            Thread thread1 = new Thread(new MultipleListeningSockets(ss, motherOfAllPlugins));
-            Thread thread2 = new Thread(new MultipleListeningSockets(ss2, motherOfAllPlugins));
-            thread1.start();
-            thread2.start();
-            thread1.join();
-            thread2.join();
+            Thread httpSocketListener = new Thread(new MultipleListeningSockets(httpSocket, motherOfAllPlugins));
+            Thread httpsSocketListener = new Thread(new MultipleListeningSockets(httpsSocket, motherOfAllPlugins));
+            httpSocketListener.start();
+            httpsSocketListener.start();
+            httpSocketListener.join();
+            httpsSocketListener.join();
         }
     }
 

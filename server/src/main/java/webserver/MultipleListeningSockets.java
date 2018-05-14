@@ -21,8 +21,8 @@ public class MultipleListeningSockets implements Runnable {
                 Thread thread = new Thread(new HandleRequestAndSendResponse(socket, config));
                 thread.start();
             }
-            } catch(Exception e){
-                throw new RuntimeException(e);
-            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

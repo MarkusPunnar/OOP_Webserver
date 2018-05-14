@@ -18,10 +18,10 @@ public class SSLHandler {
             trustStore.load(is, keyStorePassword.toCharArray());
             tmFactory.init(trustStore);
         }
-        try (InputStream is2 = WebServer.class.getClassLoader().getResourceAsStream("keystore.jks")) {
+        try (InputStream newStream = WebServer.class.getClassLoader().getResourceAsStream("keystore.jks")) {
             keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             KeyStore ksStore = KeyStore.getInstance(keyStoreType);
-            ksStore.load(is2, keyStorePassword.toCharArray());
+            ksStore.load(newStream, keyStorePassword.toCharArray());
             keyFactory.init(ksStore, keyStorePassword.toCharArray());
         }
         KeyManager[] managers = keyFactory.getKeyManagers();
