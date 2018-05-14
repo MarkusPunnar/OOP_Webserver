@@ -1,27 +1,27 @@
 package webserver;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Request {
 
-    private Map<String, String> headers;
+    private Map<String, List<String>> headers;
     private byte[] body;
     private String requestMethod;
     private String requestURI;
     private Map<String, String> parameters = new HashMap<>();
     private Map<String, String> requestAttributes = new HashMap<>();
 
-    public Request(String requestMethod, String requestURI, Map<String, String> headers, byte[] body) throws UnsupportedEncodingException {
+    public Request(String requestMethod, String requestURI, Map<String, List<String>> headers, byte[] body) throws UnsupportedEncodingException {
         int parameterStart = requestURI.indexOf("?");
         if (parameterStart == -1) {
             this.requestURI = URLDecoder.decode(requestURI, "UTF-8");
         } else {
-            this.requestURI = URLDecoder.decode(requestURI.substring(0,parameterStart), "UTF-8");
-            String[] parameterArray = requestURI.substring(parameterStart+1).split("&");
+            this.requestURI = URLDecoder.decode(requestURI.substring(0, parameterStart), "UTF-8");
+            String[] parameterArray = requestURI.substring(parameterStart + 1).split("&");
             for (String s : parameterArray) {
                 String[] parameterValues = s.split("=");
                 for (int i = 0; i < parameterValues.length; i++) {
@@ -49,6 +49,71 @@ public class Request {
         return map;
     }
 
+    public Map<String, Part> multipartBodyToForm() {
+        Map<String, Part> map = new HashMap<>();
+
+        byte[] lineBreakD = "\r\n\r\n".getBytes();
+
+        if (headers.get("Content-Type") == null)
+            throw new RuntimeException("Content-Type header not found");
+
+        byte[] boundary = headers.get("Content-Type").get(0).split(";")[1].replace("boundary=", "").getBytes();
+        byte[][] parts = split(body, boundary);
+
+        for (byte[] part : parts) {
+            String[] info = split(part, lineBreakD)[0].toString().split("\r\n");
+            byte[] partValue = Arrays.copyOfRange(part, indexOf(part, lineBreakD) + lineBreakD.length, part.length);
+            String contentDispositionInfo = info[0].split(":")[1];
+            String partNameValue = contentDispositionInfo.split(";")[1];
+            String partName = partNameValue.substring(partNameValue.indexOf(":"), partNameValue.length());
+            map.put(partName, new Part(partName, partValue));
+        }
+
+        return map;
+    }
+
+    private int indexOf(byte[] array, byte[] string) {
+        int a = -1;
+        for (int i = 0; i < array.length - string.length; i++) {
+            if (Arrays.equals(Arrays.copyOfRange(array, i, i + string.length), string)) {
+                a = i;
+            }
+        }
+        return a;
+    }
+
+    private byte[][] split(byte[] body, byte[] splitter) {
+        byte[][] array = null;
+        int counter = 0;
+        boolean finished = false;
+        int length = body.length;
+        while (!finished) {
+            for (int i = 0; i < length; i++) {
+                if (Arrays.equals(Arrays.copyOfRange(body, i, i + splitter.length), splitter)) {
+                    array[counter] = Arrays.copyOfRange(body, 0, i);
+                    if (length - i <= splitter.length) {
+                        finished = true;
+                        break;
+                    }
+                    body = Arrays.copyOfRange(body, i + splitter.length, body.length + 1);
+                }
+            }
+        }
+        return array;
+    }
+
+    /* ei kasuta, aga äkki kusagil mingi hetk läheb vaja, ei kustuta veel ära
+    private int count(byte[] body, byte[] object){
+        int a = 0;
+        for (int i = 0; i < body.length-object.length; i++) {
+            if(Arrays.equals(Arrays.copyOfRange(body, i, i+object.length),object)) {
+                a++;
+            }
+        }
+        return a;
+    }*/
+
+
     private int countChars(String dataPart) {
         int count = 0;
         char[] stringSymbols = dataPart.toCharArray();
@@ -60,7 +125,7 @@ public class Request {
         return count;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<String, List<String>> getHeaders() {
         return headers;
     }
 
