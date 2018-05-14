@@ -20,7 +20,7 @@ public class LoginFilter implements Filter {
             }
         } else {
             Map<String, String> responseHeaders = new HashMap<>();
-            if (request.getHeaders().containsKey("Cookie") && loggedUsers.contains(request.getHeaders().get("Cookie").split("=")[1])) {
+            if (request.getHeaders().containsKey("Cookie") && loggedUsers.contains(request.getHeaders().get("Cookie").get(0).split("=")[1])) {
                 return chain.filter(request);
             }
             responseHeaders.put("Location", "/defaultwebsite/loginform.html");
