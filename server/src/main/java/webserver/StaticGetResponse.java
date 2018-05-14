@@ -36,7 +36,7 @@ public class StaticGetResponse {
                 int statusCode = 404;
                 Map<String, String> responseHeaders = new HashMap<>();
                 responseHeaders.put("Content-Type", "text/html");
-                byte[] body = WebServerUtil.readFileFromClasspath("404page.html");
+                byte[] body = WebServerUtil.readFileFromClasspath("requiredfiles","404page.html");
                 response = new Response(statusCode, responseHeaders, body);
             }
             return response;
