@@ -9,5 +9,12 @@ public class Part {
         this.body = body;
     }
 
-
+    public String toString(){
+        try{
+            return body.toString();
+        }
+        catch (Exception e){
+            return "";
+        }
+    }
 }

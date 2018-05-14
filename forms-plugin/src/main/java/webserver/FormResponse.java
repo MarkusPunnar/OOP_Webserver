@@ -25,22 +25,26 @@ public class FormResponse implements RequestHandler {
         return new Response(statusCode, responseHeaders, body);
     }
 
-    /*public Response handleMultipart(Request request){
+    public Response handleMultipart(Request request){
         int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
-        Map<String, String> dataMap = request.;
+        Map<String, Part> dataMap = request.multipartBodyToForm();
+
         if (dataMap == null) {
             return new Response(400, Collections.emptyMap(), null);
         }
+
         String response = "Data received";
+
         for (String dataPart : dataMap.keySet()) {
-            response += "\n" + dataPart + ": " + dataMap.get(dataPart);
+            response += "\n" + dataPart + ": " + dataMap.get(dataPart).toString();
         }
+
         body = response.getBytes();
         System.out.println(response);
         return new Response(statusCode, responseHeaders, body);
-    }*/
+    }
 
     @Override
     public void initialize(ServerConfig sc) {
