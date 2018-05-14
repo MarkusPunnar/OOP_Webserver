@@ -1,5 +1,7 @@
 package webserver;
 
+import java.io.UnsupportedEncodingException;
+
 public class Part {
     private String name;
     private byte[] body;
@@ -9,12 +11,11 @@ public class Part {
         this.body = body;
     }
 
-    public String toString(){
-        try{
-            return body.toString();
-        }
-        catch (Exception e){
-            return "";
-        }
+    public String bodyAsString() throws UnsupportedEncodingException {
+        return new String(body, "UTF-8");
+    }
+
+    public byte[] getBody() {
+        return body;
     }
 }
