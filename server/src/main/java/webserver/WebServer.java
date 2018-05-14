@@ -14,7 +14,7 @@ public class WebServer {
         this.dirName = dirName;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         String dirName;
         if (args.length == 0) {
             throw new RuntimeException("Server file directory not assigned.");
@@ -29,17 +29,19 @@ public class WebServer {
         new WebServer(dirName).run();
     }
 
-    public void run() throws IOException {
-        try (ServerSocket ss = new ServerSocket(1337)) {
+    public void run() throws Exception {
+        try (ServerSocket ss = new ServerSocket(1337);
+             ServerSocket ss2 = new SSLHandler().getSSLHandler(1338)) {
             Map<String, String> mimeTypes = readMimeTypesFromFile();
             List<Filter> filters = createFilterInstances();
             ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, new HashMap<>(), filters);
             createPluginInstances(motherOfAllPlugins, motherOfAllPlugins.getDynamicResponseURIs());
-            while (true) {
-                Socket socket = ss.accept();
-                Thread thread = new Thread(new HandleRequestAndSendResponse(socket, motherOfAllPlugins));
-                thread.start();
-            }
+            Thread thread1 = new Thread(new MultipleListeningSockets(ss, motherOfAllPlugins));
+            Thread thread2 = new Thread(new MultipleListeningSockets(ss2, motherOfAllPlugins));
+            thread1.start();
+            thread2.start();
+            thread1.join();
+            thread2.join();
         }
     }
 

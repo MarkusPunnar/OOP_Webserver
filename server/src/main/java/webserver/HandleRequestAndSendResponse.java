@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 
-public class HandleRequestAndSendResponse implements Runnable {
+    public class HandleRequestAndSendResponse implements Runnable {
 
     private final Socket socket;
     private final ServerConfig serverConfig;
