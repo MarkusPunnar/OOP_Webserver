@@ -18,6 +18,7 @@ public class StaticGetResponse {
         this.mimeTypes = mimeTypes;
     }
 
+    @Mapping(URI = "/*")
     public Response handle(Request request) {
         Response response;
         if (!request.getRequestMethod().equals("GET")) {

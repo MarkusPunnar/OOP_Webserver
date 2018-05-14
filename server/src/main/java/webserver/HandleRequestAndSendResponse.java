@@ -38,9 +38,6 @@ import java.util.*;
                     matchesTried++;
                 }
             }
-            if (response == null) {
-                response = new StaticGetResponse(Paths.get(serverConfig.getDirectoryAsString()), serverConfig.getMimeTypes()).handle(request);
-            }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(constructStatusLine(response).getBytes("UTF-8"));
                 for (String header : response.getHeaders().keySet()) {
