@@ -8,16 +8,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StaticGetResponse {
+public class StaticGetResponse implements RequestHandler {
 
     private Path directory;
     private Map<String, String> mimeTypes;
-
-    public StaticGetResponse(Path directory, Map<String, String> mimeTypes) {
-        this.directory = directory;
-        this.mimeTypes = mimeTypes;
-    }
-
+    
     @Mapping(URI = "/*")
     public Response handle(Request request) {
         Response response;
@@ -79,5 +74,11 @@ public class StaticGetResponse {
         responseHeaders.put("Content-Length", String.valueOf(body.length));
         responseHeaders.put("Content-Type", "text/html");
         return new Response(statusCode, responseHeaders, body);
+    }
+
+    @Override
+    public void initialize(ServerConfig sc) {
+        this.directory = sc.getDirectory();
+        this.mimeTypes = sc.getMimeTypes();
     }
 }
