@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 
-    public class HandleRequestAndSendResponse implements Runnable {
+public class HandleRequestAndSendResponse implements Runnable {
 
     private final Socket socket;
     private final ServerConfig serverConfig;
@@ -24,32 +24,43 @@ import java.util.*;
         Response response = null;
         try {
             Request request = readRequest(socket);
-            boolean foundProperClass = false;
+            boolean foundProperHandler = false;
             int matchesTried = 0;
             ArrayList<MappingInfo> dynamicResponseMappingInfoAsList = new ArrayList<>(serverConfig.getDynamicResponseURIs().keySet());
             compareMethodLength(dynamicResponseMappingInfoAsList);
-            while (!foundProperClass && matchesTried != serverConfig.getDynamicResponseURIs().keySet().size()) {
+            while (!foundProperHandler && matchesTried != serverConfig.getDynamicResponseURIs().keySet().size()) {
                 for (MappingInfo matchingRequestInfo : dynamicResponseMappingInfoAsList) {
-                    foundProperClass = checkURIMatching(matchingRequestInfo, request);
-                    if (foundProperClass) {
+                    foundProperHandler = checkURIMatching(matchingRequestInfo, request);
+                    if (foundProperHandler) {
                         FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(matchingRequestInfo));
-                        response = chain.filter(request);
+                        try {
+                            response = chain.filter(request);
+                            break;
+                        } catch (Exception e) {
+                            response = new Response(500, Collections.emptyMap(), null);
+                            e.printStackTrace();
+                        }
                     }
                     matchesTried++;
                 }
             }
-            try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
-                bof.write(constructStatusLine(response).getBytes("UTF-8"));
-                for (String header : response.getHeaders().keySet()) {
-                    bof.write((header + ": " + response.getHeaders().get(header) + "\r\n").getBytes("UTF-8"));
-                }
-                bof.write(finalBytes);
-                if (response.getBody() != null) {
-                    bof.write(response.getBody());
-                }
-            }
+            sendResponseToClient(response);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+    private void sendResponseToClient(Response response) throws IOException {
+        try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
+            bof.write(constructStatusLine(response).getBytes("UTF-8"));
+            for (String header : response.getHeaders().keySet()) {
+                bof.write((header + ": " + response.getHeaders().get(header) + "\r\n").getBytes("UTF-8"));
+            }
+            bof.write(finalBytes);
+            if (response.getBody() != null) {
+                bof.write(response.getBody());
+            }
         }
     }
 
