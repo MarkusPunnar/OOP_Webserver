@@ -24,23 +24,27 @@ public class StaticGetResponse {
             return new Response(405, Collections.emptyMap(), null);
         }
         try {
-            if (Files.isRegularFile(Paths.get(directory.toString(), request.getRequestURI()))) {
-                response = responseWithStaticFile(request);
-            } else if (Files.isDirectory(Paths.get(directory.toString(), request.getRequestURI()))) {
-                if (Files.exists(Paths.get(directory.toString(), request.getRequestURI(), "index.html"))) {
-                    response = responseWithDefaultPage(request);
-                } else {
-                    response = responseWithFileTree(request);
-                }
+            if (request.getRequestURI().startsWith("/requiredfiles/")) {
+                response = responseWithPluginFile(request);
             } else {
-                int statusCode = 404;
-                Map<String, String> responseHeaders = new HashMap<>();
-                responseHeaders.put("Content-Type", "text/html");
-                byte[] body = WebServerUtil.readFileFromClasspath("requiredfiles","404page.html");
-                response = new Response(statusCode, responseHeaders, body);
+                if (Files.isRegularFile(Paths.get(directory.toString(), request.getRequestURI()))) {
+                    response = responseWithStaticFile(request);
+                } else if (Files.isDirectory(Paths.get(directory.toString(), request.getRequestURI()))) {
+                    if (Files.exists(Paths.get(directory.toString(), request.getRequestURI(), "index.html"))) {
+                        response = responseWithDefaultPage(request);
+                    } else {
+                        response = responseWithFileTree(request);
+                    }
+                } else {
+                    int statusCode = 404;
+                    Map<String, String> responseHeaders = new HashMap<>();
+                    responseHeaders.put("Content-Type", "text/html");
+                    byte[] body = WebServerUtil.readFileFromClasspathDirectory("requiredfiles","404page.html");
+                    response = new Response(statusCode, responseHeaders, body);
+                }
             }
             return response;
-        } catch (Exception e) {
+        } catch (IOException e) {
             return new Response(500, Collections.emptyMap(), null);
         }
     }
@@ -77,6 +81,22 @@ public class StaticGetResponse {
         byte[] body = Files.readAllBytes(Paths.get(directory.toString(), request.getRequestURI(), "index.html"));
         responseHeaders.put("Content-Length", String.valueOf(body.length));
         responseHeaders.put("Content-Type", "text/html");
+        return new Response(statusCode, responseHeaders, body);
+    }
+
+    private Response responseWithPluginFile(Request request) throws IOException {
+        int statusCode = 200;
+        Map<String, String> responseHeaders = new HashMap<>();
+        byte[] body = WebServerUtil.readFileFromClasspath(request.getRequestURI().substring(1));
+        if (body.length == 0) {
+            statusCode = 404;
+        }
+        String requestURI = request.getRequestURI();
+        String fileExtension = requestURI.substring(requestURI.lastIndexOf(".") + 1);
+        if (mimeTypes.get(fileExtension) != null) {
+            responseHeaders.put("Content-Type", mimeTypes.get(fileExtension));
+        }
+        responseHeaders.put("Content-Length", String.valueOf(body.length));
         return new Response(statusCode, responseHeaders, body);
     }
 }

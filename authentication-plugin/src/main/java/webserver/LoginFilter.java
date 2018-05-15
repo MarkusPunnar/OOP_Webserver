@@ -23,7 +23,7 @@ public class LoginFilter implements Filter {
             if (request.getHeaders().containsKey("Cookie") && loggedUsers.contains(request.getHeaders().get("Cookie").get(0).split("=")[1])) {
                 return chain.filter(request);
             }
-            responseHeaders.put("Location", "/defaultwebsite/loginform.html");
+            responseHeaders.put("Location", "/requiredfiles/loginform.html");
             return new Response(302, responseHeaders, null);
         }
         return response;
