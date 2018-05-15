@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 
-public class HandleRequestAndSendResponse implements Runnable {
+    public class HandleRequestAndSendResponse implements Runnable {
 
     private final Socket socket;
     private final ServerConfig serverConfig;
@@ -37,9 +37,6 @@ public class HandleRequestAndSendResponse implements Runnable {
                     }
                     matchesTried++;
                 }
-            }
-            if (response == null) {
-                response = new StaticGetResponse(Paths.get(serverConfig.getDirectoryAsString()), serverConfig.getMimeTypes()).handle(request);
             }
             try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
                 bof.write(constructStatusLine(response).getBytes("UTF-8"));
