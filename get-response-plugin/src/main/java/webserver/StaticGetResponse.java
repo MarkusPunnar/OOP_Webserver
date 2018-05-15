@@ -14,11 +14,6 @@ public class StaticGetResponse implements RequestHandler {
     private Map<String, String> mimeTypes;
 
     @Mapping(URI = "/*")
-    /*public StaticGetResponse(Path directory, Map<String, String> mimeTypes) {
-        this.directory = directory;
-        this.mimeTypes = mimeTypes;
-    }*/
-
     public Response handle(Request request) {
         Response response;
         if (!request.getRequestMethod().equals("GET")) {
