@@ -55,7 +55,7 @@ public class WebServer {
 
     private Map<String, String> readMimeTypesFromFile() throws IOException {
         Map<String, String> mimeMap = new HashMap<>();
-        byte[] mimeTypesAsArray = WebServerUtil.readFileFromClasspath("requiredfiles", "extensions.txt");
+        byte[] mimeTypesAsArray = WebServerUtil.readFileFromClasspathDirectory("requiredfiles", "extensions.txt");
         String[] mimeTypesAsString = new String(mimeTypesAsArray, "UTF-8").split("\n");
         for (String mimeType : mimeTypesAsString) {
             String[] mimeInfo = mimeType.split(" ");
