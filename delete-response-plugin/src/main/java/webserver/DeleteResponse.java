@@ -38,12 +38,11 @@ public class DeleteResponse implements RequestHandler {
         if (request.getParameters().containsKey("return")) {
             responseHeaders.put("Location", request.getParameters().get("return"));
         }
-        return new Response(statusCode, responseHeaders, body);
+        return new Response(statusCode, responseHeaders, null);
     }
 
     @Override
     public void initialize(ServerConfig sc) {
         this.directory = sc.getDirectory();
     }
-
 }
