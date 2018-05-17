@@ -21,33 +21,41 @@ public class HandleRequestAndSendResponse implements Runnable {
 
     @Override
     public void run() {
-        Response response = null;
         try {
             Request request = readRequest(socket);
-            boolean foundProperHandler = false;
-            int matchesTried = 0;
-            ArrayList<MappingInfo> dynamicResponseMappingInfoAsList = new ArrayList<>(serverConfig.getDynamicResponseURIs().keySet());
-            compareMethodLength(dynamicResponseMappingInfoAsList);
-            while (!foundProperHandler && matchesTried != serverConfig.getDynamicResponseURIs().keySet().size()) {
-                for (MappingInfo matchingRequestInfo : dynamicResponseMappingInfoAsList) {
-                    foundProperHandler = checkURIMatching(matchingRequestInfo, request);
-                    if (foundProperHandler) {
-                        FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(matchingRequestInfo));
-                        try {
-                            response = chain.filter(request);
-                            break;
-                        } catch (Exception e) {
-                            response = new Response(500, Collections.emptyMap(), null);
-                            e.printStackTrace();
-                        }
-                    }
-                    matchesTried++;
-                }
-            }
+            MappingInfo correctHandler = findHandler(request);
+            Response response = invokeHandler(correctHandler, request);
             sendResponseToClient(response);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private MappingInfo findHandler(Request request) {
+        int matchesTried = 0;
+        ArrayList<MappingInfo> dynamicResponseMappingInfoAsList = new ArrayList<>(serverConfig.getDynamicResponseURIs().keySet());
+        compareMethodLength(dynamicResponseMappingInfoAsList);
+        while (matchesTried != serverConfig.getDynamicResponseURIs().keySet().size()) {
+            for (MappingInfo matchingRequestInfo : dynamicResponseMappingInfoAsList) {
+                if (checkURIMatching(matchingRequestInfo, request)) {
+                    return matchingRequestInfo;
+                }
+                matchesTried++;
+            }
+        }
+        return null;
+    }
+
+    private Response invokeHandler(MappingInfo mappingInfo, Request request) {
+        Response response;
+        FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(mappingInfo));
+        try {
+            response = chain.filter(request);
+        } catch (Exception e) {
+            response = new Response(500, Collections.emptyMap(), null);
+            e.printStackTrace();
+        }
+        return response;
     }
 
 
