@@ -4,17 +4,17 @@ import java.util.Map;
 
 public class Response {
 
-    private int statusCode;
+    private StatusCode statusCode;
     private Map<String, String> headers;
     private byte[] body;
 
-    public Response(int statusCode, Map<String, String> headers, byte[] body) {
+    public Response(StatusCode statusCode, Map<String, String> headers, byte[] body) {
         this.statusCode = statusCode;
         this.headers = headers;
         this.body = body;
     }
 
-    public int getStatusCode() {
+    public StatusCode getStatusCode() {
         return statusCode;
     }
 

@@ -17,9 +17,9 @@ public class CurrentDateTime implements RequestHandler {
             byte[] body = currentLocalTime.toString().getBytes("UTF-8");
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Content-Type", "text/plain");
-            return new Response(200, responseHeaders, body);
+            return new Response(StatusCode.OK, responseHeaders, body);
         } catch (UnsupportedEncodingException e) {
-            return new Response(400, Collections.emptyMap(), null);
+            return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
     }
 

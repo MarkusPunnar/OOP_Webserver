@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class WebServerUtil {
-    public static byte[] readFileFromClasspath(String fileName) throws IOException {
+    private static byte[] readFileFromClasspath(String fileName) throws IOException {
         try (InputStream is = WebServer.class.getClassLoader().getResourceAsStream(fileName)) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             if (WebServer.class.getClassLoader().getResourceAsStream(fileName) == null) {

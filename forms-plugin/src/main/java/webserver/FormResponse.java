@@ -9,12 +9,11 @@ public class FormResponse implements RequestHandler {
 
     @Mapping(URI = "/form/test", method = "POST")
     public Response handle(Request request) throws UnsupportedEncodingException {
-        int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
         Map<String, String> dataMap = request.bodyToForm();
         if (dataMap == null) {
-            return new Response(400, Collections.emptyMap(), null);
+            return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
         String response = "Data received";
         for (String dataPart : dataMap.keySet()) {
@@ -22,18 +21,17 @@ public class FormResponse implements RequestHandler {
         }
         body = response.getBytes();
         System.out.println(response);
-        return new Response(statusCode, responseHeaders, body);
+        return new Response(StatusCode.OK, responseHeaders, body);
     }
 
     @Mapping(URI = "/form/multipart", method = "POST")
     public Response handleMultipart(Request request) throws UnsupportedEncodingException {
-        int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
         Map<String, Part> dataMap = request.multipartBodyToForm();
 
         if (dataMap == null) {
-            return new Response(400, Collections.emptyMap(), null);
+            return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
 
         String response = "Data received";
@@ -44,7 +42,7 @@ public class FormResponse implements RequestHandler {
 
         body = response.getBytes("UTF-8");
         System.out.println(response);
-        return new Response(statusCode, responseHeaders, body);
+        return new Response(StatusCode.OK, responseHeaders, body);
     }
 
     @Override

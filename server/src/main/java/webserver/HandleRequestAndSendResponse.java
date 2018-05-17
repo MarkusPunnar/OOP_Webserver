@@ -27,7 +27,7 @@ public class HandleRequestAndSendResponse implements Runnable {
             FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(correctHandler));
             response = chain.filter(request);
         } catch (Exception e) {
-            response = new Response(500, Collections.emptyMap(), null);
+            response = new Response(StatusCode.INTERNAL_ERROR, Collections.emptyMap(), null);
         }
         try {
             sendResponseToClient(response);
@@ -138,7 +138,7 @@ public class HandleRequestAndSendResponse implements Runnable {
     }
 
     private String constructStatusLine(Response response) {
-        int statusCode = response.getStatusCode();
+        int statusCode = response.getStatusCode().getCode();
         return "HTTP/1.1 " + statusCode + " " + findProperStatusMessage(statusCode) + "\r\n";
     }
 

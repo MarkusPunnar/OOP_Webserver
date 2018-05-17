@@ -24,7 +24,7 @@ public class LoginFilter implements Filter {
                 return chain.filter(request);
             }
             responseHeaders.put("Location", "/loginform.html");
-            return new Response(302, responseHeaders, null);
+            return new Response(StatusCode.FOUND, responseHeaders, null);
         }
         return response;
     }

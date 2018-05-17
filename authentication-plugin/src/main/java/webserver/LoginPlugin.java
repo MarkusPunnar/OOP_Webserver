@@ -22,7 +22,7 @@ public class LoginPlugin implements RequestHandler {
         Path readUsersFromFilePath = Paths.get(directory.toString(), "passwords.txt");
         Map<String, String> dataMap = request.bodyToForm();
         if (dataMap == null) {
-            return new Response(400, Collections.emptyMap(), null);
+            return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
         try (Scanner sc = new Scanner(readUsersFromFilePath, "UTF-8")) {
             while (sc.hasNextLine()) {
@@ -40,13 +40,13 @@ public class LoginPlugin implements RequestHandler {
             responseHeaders.put("Content-Type", "text/plain");
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Set-Cookie", "login=" + loginToken +"; Path=/");
-            return new Response(200, responseHeaders, body);
+            return new Response(StatusCode.OK, responseHeaders, body);
         }
         else {
             body = "Invalid username or password".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Type", "text/plain");
             responseHeaders.put("Content-Length", String.valueOf(body.length));
-            return new Response(400, responseHeaders, body);
+            return new Response(StatusCode.BAD_REQUEST, responseHeaders, body);
         }
     }
 

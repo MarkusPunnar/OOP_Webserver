@@ -22,7 +22,7 @@ public class RegisterPlugin implements RequestHandler {
         Path writeToFilePath = Paths.get(directory.toString(), "passwords.txt");
         Map<String, String> dataMap = request.bodyToForm();
         if (dataMap == null) {
-            return new Response(400, Collections.emptyMap(), null);
+            return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
         String userName = dataMap.get("username");
         try (Scanner sc = new Scanner(writeToFilePath.toFile(), "UTF-8")) {
@@ -35,7 +35,7 @@ public class RegisterPlugin implements RequestHandler {
             body = "Username already exists".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Content-Type", "text/plain");
-            return new Response(400, responseHeaders, body);
+            return new Response(StatusCode.BAD_REQUEST, responseHeaders, body);
         }
         String pw = dataMap.get("password");
         String confirmPw = dataMap.get("confirm_password");
@@ -43,14 +43,14 @@ public class RegisterPlugin implements RequestHandler {
             body = "Passwords don't match".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Content-Type", "text/plain");
-            return new Response(400, responseHeaders, body);
+            return new Response(StatusCode.BAD_REQUEST, responseHeaders, body);
         }
         String hashedPw = BCrypt.hashpw(pw, BCrypt.gensalt());
         try (BufferedWriter writer = Files.newBufferedWriter(writeToFilePath, StandardOpenOption.APPEND)) {
             writer.write(userName + ": " + hashedPw);
             writer.newLine();
         }
-        return new Response(200, Collections.emptyMap(), null);
+        return new Response(StatusCode.OK, Collections.emptyMap(), null);
     }
 
     public void initialize(ServerConfig sc) {
