@@ -25,6 +25,7 @@ public class FormResponse implements RequestHandler {
         return new Response(statusCode, responseHeaders, body);
     }
 
+    @Mapping(URI = "/form/multipart", method = "POST")
     public Response handleMultipart(Request request) throws UnsupportedEncodingException {
         int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();

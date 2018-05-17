@@ -49,70 +49,49 @@ public class Request {
         return map;
     }
 
-    public Map<String, Part> multipartBodyToForm() {
+    public Map<String, Part> multipartBodyToForm() throws UnsupportedEncodingException {
         Map<String, Part> map = new HashMap<>();
-
         byte[] lineBreakD = "\r\n\r\n".getBytes();
 
         if (headers.get("Content-Type") == null)
             throw new RuntimeException("Content-Type header not found");
 
-        byte[] boundary = headers.get("Content-Type").get(0).split(";")[1].replace("boundary=", "").getBytes();
-        byte[][] parts = split(body, boundary);
+        String boundaryX = headers.get("Content-Type").get(0).split(";")[1].replace("boundary=", "");
+        byte[] boundary = boundaryX.substring(1, boundaryX.length() - 1).getBytes("UTF-8");
+        List<byte[]> parts = split(body, boundary);
 
         for (byte[] part : parts) {
-            String[] info = split(part, lineBreakD)[0].toString().split("\r\n");
-            byte[] partValue = Arrays.copyOfRange(part, indexOf(part, lineBreakD) + lineBreakD.length, part.length);
+            String[] info = split(part, lineBreakD).get(0).toString().split("\r\n");
+            byte[] partValue = Arrays.copyOfRange(part, indexOf(part, lineBreakD,0) + lineBreakD.length, part.length);
             String contentDispositionInfo = info[0].split(":")[1];
             String partNameValue = contentDispositionInfo.split(";")[1];
             String partName = partNameValue.substring(partNameValue.indexOf(":"), partNameValue.length());
             map.put(partName, new Part(partName, partValue));
         }
-
         return map;
     }
 
-    private int indexOf(byte[] array, byte[] string) {
-        int a = -1;
-        for (int i = 0; i < array.length - string.length; i++) {
+    private int indexOf(byte[] array, byte[] string, int start) {
+        for (int i = start; i < array.length - string.length + 1; i++) {
             if (Arrays.equals(Arrays.copyOfRange(array, i, i + string.length), string)) {
-                a = i;
+                return i;
             }
         }
-        return a;
+        return -1;
     }
 
-    private byte[][] split(byte[] body, byte[] splitter) {
-        byte[][] array = null;
-        int counter = 0;
-        boolean finished = false;
-        int length = body.length;
-        while (!finished) {
-            for (int i = 0; i < length; i++) {
-                if (Arrays.equals(Arrays.copyOfRange(body, i, i + splitter.length), splitter)) {
-                    array[counter] = Arrays.copyOfRange(body, 0, i);
-                    if (length - i <= splitter.length) {
-                        finished = true;
-                        break;
-                    }
-                    body = Arrays.copyOfRange(body, i + splitter.length, body.length + 1);
-                }
-            }
+    private List<byte[]> split(byte[] body, byte[] splitter) {
+        List<byte[]> array = new ArrayList<>();
+        int start = 0;
+        int a = indexOf(body, splitter, start);
+        while (a != -1) {
+            if (a != 0)
+                array.add(Arrays.copyOfRange(body, start, a));
+            start = a + splitter.length + 1;
+            a = indexOf(body, splitter, start);
         }
         return array;
     }
-
-    /* ei kasuta, aga äkki kusagil mingi hetk läheb vaja, ei kustuta veel ära
-    private int count(byte[] body, byte[] object){
-        int a = 0;
-        for (int i = 0; i < body.length-object.length; i++) {
-            if(Arrays.equals(Arrays.copyOfRange(body, i, i+object.length),object)) {
-                a++;
-            }
-        }
-        return a;
-    }*/
-
 
     private int countChars(String dataPart) {
         int count = 0;
