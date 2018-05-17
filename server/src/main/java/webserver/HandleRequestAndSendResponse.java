@@ -139,28 +139,7 @@ public class HandleRequestAndSendResponse implements Runnable {
 
     private String constructStatusLine(Response response) {
         int statusCode = response.getStatusCode().getCode();
-        return "HTTP/1.1 " + statusCode + " " + findProperStatusMessage(statusCode) + "\r\n";
-    }
-
-    private String findProperStatusMessage(int statusCode) {
-        switch (statusCode) {
-            case 200:
-                return "OK";
-            case 201:
-                return "Created";
-            case 302:
-                return "Found";
-            case 400:
-                return "Bad Request";
-            case 404:
-                return "Not Found";
-            case 405:
-                return "Method Not Allowed";
-            case 500:
-                return "Internal Server Error";
-            default:
-                throw new IllegalArgumentException("Unknown status code.");
-        }
+        return "HTTP/1.1 " + statusCode + " " + response.getStatusCode().getMessage() + "\r\n";
     }
 
     private boolean checkURIMatching(MappingInfo matchingRequestInfo, Request request) {
