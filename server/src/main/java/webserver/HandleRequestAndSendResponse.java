@@ -3,7 +3,6 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -21,10 +20,16 @@ public class HandleRequestAndSendResponse implements Runnable {
 
     @Override
     public void run() {
+        Response response;
         try {
             Request request = readRequest(socket);
             MappingInfo correctHandler = findHandler(request);
-            Response response = invokeHandler(correctHandler, request);
+            FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(correctHandler));
+            response = chain.filter(request);
+        } catch (Exception e) {
+            response = new Response(500, Collections.emptyMap(), null);
+        }
+        try {
             sendResponseToClient(response);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -45,19 +50,6 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
         return null;
     }
-
-    private Response invokeHandler(MappingInfo mappingInfo, Request request) {
-        Response response;
-        FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(mappingInfo));
-        try {
-            response = chain.filter(request);
-        } catch (Exception e) {
-            response = new Response(500, Collections.emptyMap(), null);
-            e.printStackTrace();
-        }
-        return response;
-    }
-
 
     private void sendResponseToClient(Response response) throws IOException {
         try (BufferedOutputStream bof = new BufferedOutputStream(socket.getOutputStream())) {
