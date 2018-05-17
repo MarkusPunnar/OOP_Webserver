@@ -11,11 +11,12 @@ public class DeleteResponse implements RequestHandler {
 
     private Path directory;
 
-    @Mapping(URI = "/delete/*", method = "DELETE")
+    @Mapping(URI = "/delete/*", method = "GET")
     public Response handle(Request request) throws IOException {
         int statusCode = 0;
         Map<String, String> responseHeaders = new HashMap<>();
-        byte[] body = null;
+        byte[] body = "File deleted!".getBytes();
+        System.out.println(request.getRequestURI());
         String fileToDelete = request.getRequestURI().substring(8);
         Path filePath = Paths.get(directory.toString(), fileToDelete);
         if (request.getRequestURI().equals("/")) {
@@ -24,9 +25,9 @@ public class DeleteResponse implements RequestHandler {
             if (Files.exists(filePath)) {
                 if (Files.isDirectory(filePath)) {
                     RecursiveDeleter.deleteDirectory(filePath);
-                    statusCode = 200;
+                    statusCode = 302;
                 } else if (Files.isRegularFile(filePath)) {
-                        statusCode = 200;
+                        statusCode = 302;
                         Files.delete(filePath);
                 }
             }
@@ -34,7 +35,10 @@ public class DeleteResponse implements RequestHandler {
                 statusCode = 400;
             }
         }
-        return new Response(statusCode, responseHeaders, body);
+        if (request.getParameters().containsKey("return")) {
+            responseHeaders.put("Location", request.getParameters().get("return"));
+        }
+        return new Response(statusCode, responseHeaders, null);
     }
 
     @Override

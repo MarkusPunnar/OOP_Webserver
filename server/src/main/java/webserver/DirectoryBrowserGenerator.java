@@ -39,11 +39,17 @@ public class DirectoryBrowserGenerator {
         if (!givenDir.equals(defaultDir)) {
             htmlContent += "<a href=\"" + parentDirname + "\">" + "..." + "</a> \n <br>";
         }
+        String returndir;
+        if (relativeDirname.equals("")) {
+            returndir = "/";
+        } else {
+            returndir = relativeDirname;
+        }
         if (filesInGivenDir.length > 0) {
             for (File file : filesInGivenDir) {
-                htmlContent += "<a href=\"";
-                htmlContent += relativeDirname + "/" + file.getName() + "\">" + file.getName() + "</a>\n <br>";
-
+                htmlContent += "<a href=\"" + relativeDirname + "/" + file.getName() + "\">" + file.getName() + "</a>"
+                        + "<a style=\"color: red;float: right\" href=\"delete" + relativeDirname + "/" + file.getName()
+                        + "?return=" + returndir + "\">Delete</a> <br>";
             }
         } else {
             htmlContent += "<p>Empty directory</p>\n";
@@ -51,6 +57,4 @@ public class DirectoryBrowserGenerator {
         htmlContent += "</body>\n" + "</html>";
         return htmlContent.getBytes("UTF-8");
     }
-
-
 }
