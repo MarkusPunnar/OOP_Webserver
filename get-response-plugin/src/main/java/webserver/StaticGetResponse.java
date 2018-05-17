@@ -20,9 +20,8 @@ public class StaticGetResponse implements RequestHandler {
             return new Response(405, Collections.emptyMap(), null);
         }
         try {
-            if (request.getRequestURI().startsWith("/requiredfiles/")) {
-                response = responseWithPluginFile(request);
-            } else {
+            response = responseWithPluginFile(request);
+            if (request.getRequestURI().equals("/") || response == null) {
                 if (Files.isRegularFile(Paths.get(directory.toString(), request.getRequestURI()))) {
                     response = responseWithStaticFile(request);
                 } else if (Files.isDirectory(Paths.get(directory.toString(), request.getRequestURI()))) {
@@ -83,9 +82,9 @@ public class StaticGetResponse implements RequestHandler {
     private Response responseWithPluginFile(Request request) throws IOException {
         int statusCode = 200;
         Map<String, String> responseHeaders = new HashMap<>();
-        byte[] body = WebServerUtil.readFileFromClasspath(request.getRequestURI().substring(1));
-        if (body.length == 0) {
-            statusCode = 404;
+        byte[] body = WebServerUtil.readFileFromClasspathDirectory("requiredfiles", request.getRequestURI().substring(1));
+        if (body == null) {
+            return null;
         }
         String requestURI = request.getRequestURI();
         String fileExtension = requestURI.substring(requestURI.lastIndexOf(".") + 1);
