@@ -56,16 +56,22 @@ public class Request {
         if (headers.get("Content-Type") == null)
             throw new RuntimeException("Content-Type header not found");
 
-        String boundaryX = headers.get("Content-Type").get(0).split(";")[1].replace("boundary=", "");
-        byte[] boundary = boundaryX.substring(1, boundaryX.length() - 1).getBytes("UTF-8");
-        List<byte[]> parts = split(body, boundary);
+        String boundaryX = headers.get("Content-Type").get(0).split(";")[1].replace("boundary=", "").trim();
+        byte[] boundary;
 
+        if (boundaryX.charAt(0) == '"')
+            boundary = boundaryX.substring(1, boundaryX.length() - 1).getBytes("UTF-8");
+        else
+            boundary = boundaryX.getBytes("UTF-8");
+
+
+        List<byte[]> parts = split(body, boundary);
         for (byte[] part : parts) {
-            String[] info = split(part, lineBreakD).get(0).toString().split("\r\n");
-            byte[] partValue = Arrays.copyOfRange(part, indexOf(part, lineBreakD,0) + lineBreakD.length, part.length);
+            String[] info = new String(split(part, lineBreakD).get(0)).split("\r\n");
+            byte[] partValue = Arrays.copyOfRange(part, indexOf(part, lineBreakD, 0) + lineBreakD.length, part.length);
             String contentDispositionInfo = info[0].split(":")[1];
             String partNameValue = contentDispositionInfo.split(";")[1];
-            String partName = partNameValue.substring(partNameValue.indexOf(":"), partNameValue.length());
+            String partName = partNameValue.substring(partNameValue.indexOf("=")+2, partNameValue.length()-1);
             map.put(partName, new Part(partName, partValue));
         }
         return map;
@@ -73,9 +79,15 @@ public class Request {
 
     private int indexOf(byte[] array, byte[] string, int start) {
         for (int i = start; i < array.length - string.length + 1; i++) {
-            if (Arrays.equals(Arrays.copyOfRange(array, i, i + string.length), string)) {
-                return i;
+            boolean found = true;
+            for (int j = 0; j < string.length; j++) {
+                if (array[i+j] != string[j]) {
+                    found = false;
+                    break;
+                }
             }
+            if (found)
+                return i;
         }
         return -1;
     }
@@ -85,7 +97,7 @@ public class Request {
         int start = 0;
         int a = indexOf(body, splitter, start);
         while (a != -1) {
-            if (a != 0)
+            if (a != 2)
                 array.add(Arrays.copyOfRange(body, start, a));
             start = a + splitter.length + 1;
             a = indexOf(body, splitter, start);
