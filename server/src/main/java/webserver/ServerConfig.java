@@ -30,10 +30,6 @@ public class ServerConfig {
         return directory;
     }
 
-    public String getDirectoryAsString() {
-        return directory.toString();
-    }
-
     public List<Filter> getFilters() {
         return filters;
     }

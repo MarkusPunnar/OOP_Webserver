@@ -75,7 +75,12 @@ public class HandleRequestAndSendResponse implements Runnable {
         while (!finished) {
             int usefulBytes = 0;
             for (int i = 0; i < 1024; i++) {
-                buf[i] = (byte) bf.read();
+                byte readByte = (byte) bf.read();
+                if (readByte == -1) {
+                    finished = true;
+                    break;
+                }
+                buf[i] = readByte;
                 usefulBytes++;
                 if (i > 2 && Arrays.equals(Arrays.copyOfRange(buf, i - 3, i + 1), finalRequestBytes)) {
                     finished = true;

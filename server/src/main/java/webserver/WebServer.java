@@ -29,7 +29,7 @@ public class WebServer {
         new WebServer(dirName).run();
     }
 
-    public void run() throws Exception {
+    private void run() throws Exception {
         try (ServerSocket httpSocket = new ServerSocket(1337);
              ServerSocket httpsSocket = new SSLHandler().getSSLHandler(1338)) {
             Map<String, String> mimeTypes = readMimeTypesFromFile();

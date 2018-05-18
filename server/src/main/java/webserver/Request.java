@@ -1,7 +1,6 @@
 package webserver;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -41,7 +40,7 @@ public class Request {
         if (requestDataParts.length == 1 && countChars(requestDataParts[0]) != 1) {
             return null;
         }
-        HashMap<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         for (String string : requestDataParts) {
             String[] dataTypeAndValue = string.split("=");
             map.put(URLDecoder.decode(dataTypeAndValue[0], "UTF-8"), URLDecoder.decode(dataTypeAndValue[1], "UTF-8"));
