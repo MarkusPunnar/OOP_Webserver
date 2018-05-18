@@ -37,7 +37,8 @@ public class FormResponse implements RequestHandler {
         String response = "Data received";
 
         for (String dataPart : dataMap.keySet()) {
-            response += "\n" + dataPart + ": " + dataMap.get(dataPart).getBody().length;
+            response += "\n" + dataPart + ": " + new String(dataMap.get(dataPart).getBody());
+                    //dataMap.get(dataPart).getBody().length;
         }
 
         body = response.getBytes("UTF-8");

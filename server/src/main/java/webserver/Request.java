@@ -71,7 +71,7 @@ public class Request {
             byte[] partValue = Arrays.copyOfRange(part, indexOf(part, lineBreakD, 0) + lineBreakD.length, part.length);
             String contentDispositionInfo = info[0].split(":")[1];
             String partNameValue = contentDispositionInfo.split(";")[1];
-            String partName = partNameValue.substring(partNameValue.indexOf("=")+2, partNameValue.length()-1);
+            String partName = partNameValue.substring(partNameValue.indexOf("=") + 2, partNameValue.length() - 1);
             map.put(partName, new Part(partName, partValue));
         }
         return map;
@@ -81,7 +81,7 @@ public class Request {
         for (int i = start; i < array.length - string.length + 1; i++) {
             boolean found = true;
             for (int j = 0; j < string.length; j++) {
-                if (array[i+j] != string[j]) {
+                if (array[i + j] != string[j]) {
                     found = false;
                     break;
                 }
@@ -97,11 +97,11 @@ public class Request {
         int start = 0;
         int a = indexOf(body, splitter, start);
         while (a != -1) {
-            if (a != 2)
-                array.add(Arrays.copyOfRange(body, start, a));
+            array.add(Arrays.copyOfRange(body, start, a));
             start = a + splitter.length + 1;
             a = indexOf(body, splitter, start);
         }
+        array.remove(0);
         return array;
     }
 
