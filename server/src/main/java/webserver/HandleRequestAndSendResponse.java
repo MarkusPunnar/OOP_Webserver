@@ -125,14 +125,13 @@ public class HandleRequestAndSendResponse implements Runnable {
         return requestHeadersAsMap;
     }
 
-    private byte[] readRequestBodyAsBytes(int requestBodyLength, BufferedInputStream bf) throws IOException {
-        byte[] requestBody = new byte[requestBodyLength];
-        int read = 0;
+    private byte[] readRequestBodyAsBytes(int bytesToRead, BufferedInputStream bf) throws IOException {
+        byte[] requestBody = new byte[bytesToRead];
         int bytesRead = 0;
-        while (read != -1 && bytesRead != requestBodyLength) {
-            read = bf.read();
-            requestBody[bytesRead] = (byte) read;
-            bytesRead++;
+        while (bytesToRead > 0 && bytesRead != -1) {
+            int bytesReadFromStream = bf.read(requestBody, bytesRead, bytesToRead);
+            bytesRead+=bytesReadFromStream;
+            bytesToRead-=bytesReadFromStream;
         }
         return requestBody;
     }
