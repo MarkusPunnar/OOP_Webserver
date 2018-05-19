@@ -17,7 +17,8 @@
         <module>delete-response-plugin</module>
         <module>post-response-plugin</module>
         <module>authentication-plugin</module>
-	    <module>get-response-plugin</module>
+	<module>get-response-plugin</module>
+        <module>todo-app-plugin</module>
     </modules>
 
 </project>

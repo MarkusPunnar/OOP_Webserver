@@ -20,7 +20,6 @@ public class FormResponse implements RequestHandler {
             response += "\n" + dataPart + ": " + dataMap.get(dataPart);
         }
         body = response.getBytes();
-        System.out.println(response);
         return new Response(StatusCode.OK, responseHeaders, body);
     }
 
@@ -37,12 +36,10 @@ public class FormResponse implements RequestHandler {
         String response = "Data received";
 
         for (String dataPart : dataMap.keySet()) {
-            response += "\n" + dataPart + ": " + new String(dataMap.get(dataPart).getBody());
-                    //dataMap.get(dataPart).getBody().length;
+            response += "\n" + dataPart + ": " + dataMap.get(dataPart).getBody().length;
         }
 
         body = response.getBytes("UTF-8");
-        System.out.println(response);
         return new Response(StatusCode.OK, responseHeaders, body);
     }
 
