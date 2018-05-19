@@ -68,26 +68,21 @@ public class HandleRequestAndSendResponse implements Runnable {
         dynamicResponseURIsAsList.sort((o1, o2) -> o2.getRequestURI().split("/").length - o1.getRequestURI().split("/").length);
     }
 
-    private byte[] readRequestAsByteArray(BufferedInputStream bf) throws IOException {
+    private byte[] readRequestLineAndHeadersAsByteArray(BufferedInputStream bf) throws IOException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        byte[] buf = new byte[1024];
-        boolean finished = false;
-        while (!finished) {
-            int usefulBytes = 0;
-            for (int i = 0; i < 1024; i++) {
-                byte readByte = (byte) bf.read();
-                if (readByte == -1) {
-                    finished = true;
-                    break;
-                }
-                buf[i] = readByte;
-                usefulBytes++;
-                if (i > 2 && Arrays.equals(Arrays.copyOfRange(buf, i - 3, i + 1), finalRequestBytes)) {
-                    finished = true;
-                    break;
-                }
+        byte[] finalFourBytes = new byte[]{0, 0, 0, 0};
+        while (true) {
+            int readValue = bf.read();
+            if (readValue == -1) {
+                break;
             }
-            byteOut.write(buf, 0, usefulBytes);
+            byte readByte = (byte) readValue;
+            byteOut.write(readByte);
+            shiftBytes(finalFourBytes);
+            finalFourBytes[3] = readByte;
+            if (Arrays.equals(finalFourBytes, finalRequestBytes)) {
+                break;
+            }
         }
         return byteOut.toByteArray();
     }
@@ -95,7 +90,7 @@ public class HandleRequestAndSendResponse implements Runnable {
     private Request readRequest(Socket socket) throws Exception {
         BufferedInputStream bf = new BufferedInputStream(socket.getInputStream());
         byte[] requestBody = null;
-        byte[] requestLineAndHeaders = readRequestAsByteArray(bf);
+        byte[] requestLineAndHeaders = readRequestLineAndHeadersAsByteArray(bf);
         String requestLineAndHeadersAsString = new String(requestLineAndHeaders, 0, requestLineAndHeaders.length);
         List<String> requestLineComponents = parseRequestLine(requestLineAndHeadersAsString);
         Map<String, List<String>> requestHeadersAsMap = readRequestHeadersToMap(requestLineAndHeadersAsString);
@@ -157,5 +152,11 @@ public class HandleRequestAndSendResponse implements Runnable {
             }
         }
         return URImatching && methodMatching;
+    }
+
+    private void shiftBytes(byte[] bytes) {
+        bytes[0] = bytes[1];
+        bytes[1] = bytes[2];
+        bytes[2] = bytes[3];
     }
 }
