@@ -32,7 +32,7 @@ public class DeleteResponse implements RequestHandler {
                 }
             }
             if (statusCode == null) {
-                statusCode = StatusCode.BAD_REQUEST;
+                statusCode = StatusCode.NOT_FOUND;
             }
         }
         if (request.getParameters().containsKey("return")) {
