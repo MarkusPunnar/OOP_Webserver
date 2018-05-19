@@ -11,3 +11,4 @@ class application/java-vm
 json application/json
 xml application/xml
 pdf application/pdf
+css text/css

@@ -9,7 +9,7 @@ public class ToDoApp implements RequestHandler {
     private int taskCounter = 0;
 
     @Mapping(URI = "/todoapp/form", method = "POST")
-    public Response handle(Request request) throws UnsupportedEncodingException {
+    synchronized public Response handle(Request request) throws UnsupportedEncodingException {
         Map<String, String> responseHeaders = new HashMap<>();
         String task = request.bodyToForm().get("user_message");
         if (task != null) {
@@ -20,8 +20,10 @@ public class ToDoApp implements RequestHandler {
         return new Response(StatusCode.FOUND, responseHeaders, null);
     }
 
+
     @Mapping(URI = "/todoapp/form")
-    public Response getList(Request request) throws IOException {
+    synchronized public Response getList(Request request) throws IOException {
+
         String template = new String(WebServerUtil.readFileFromClasspath("app.html"), "UTF-8");
         Map<String, String> responseHeaders = new HashMap<>();
         String existingItems = "";
@@ -38,13 +40,9 @@ public class ToDoApp implements RequestHandler {
     }
 
     @Mapping(URI = "/todoapp/delete/*", method = "POST")
-    public Response deleteTask(Request request) throws UnsupportedEncodingException {
+    synchronized public Response deleteTask(Request request) throws UnsupportedEncodingException {
         String uri = request.getRequestURI();
-        int id = 0;
-        for (int i = uri.length()-1; i > -1; i--) {
-            if(uri.charAt(i)=='/')
-                id = Integer.parseInt(uri.substring(i+1, uri.length()));
-        }
+        int id = Integer.parseInt(uri.substring(uri.lastIndexOf("/") + 1));
         toDoList.remove(id);
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("Location", "/todoapp/form");
