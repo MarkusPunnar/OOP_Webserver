@@ -17,8 +17,7 @@ public class FilterChain {
         Response response;
         if (lastCalled == appliedFilters.size() - 1) {
             response = (Response) handlerInfo.getHandlerMethod().invoke(handlerInfo.getHandler(), request);
-        }
-        else {
+        } else {
             lastCalled++;
             response = appliedFilters.get(lastCalled).doFilter(request, this);
         }

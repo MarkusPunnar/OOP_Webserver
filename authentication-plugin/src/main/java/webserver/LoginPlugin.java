@@ -39,10 +39,9 @@ public class LoginPlugin implements RequestHandler {
             body = "Login successful".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Type", "text/plain");
             responseHeaders.put("Content-Length", String.valueOf(body.length));
-            responseHeaders.put("Set-Cookie", "login=" + loginToken +"; Path=/");
+            responseHeaders.put("Set-Cookie", "login=" + loginToken + "; Path=/");
             return new Response(StatusCode.OK, responseHeaders, body);
-        }
-        else {
+        } else {
             body = "Invalid username or password".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Type", "text/plain");
             responseHeaders.put("Content-Length", String.valueOf(body.length));
