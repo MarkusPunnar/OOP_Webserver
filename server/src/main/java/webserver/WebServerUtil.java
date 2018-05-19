@@ -8,7 +8,7 @@ public class WebServerUtil {
     protected static byte[] readFileFromClasspath(String fileName) throws IOException {
         try (InputStream is = WebServer.class.getClassLoader().getResourceAsStream(fileName)) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            if (WebServer.class.getClassLoader().getResourceAsStream(fileName) == null) {
+            if (is == null) {
                 return null;
             }
             int nRead;
