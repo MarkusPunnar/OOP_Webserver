@@ -43,7 +43,7 @@ public class Request {
         Map<String, String> map = new HashMap<>();
         for (String string : requestDataParts) {
             String[] dataTypeAndValue = string.split("=");
-            if(dataTypeAndValue.length!=1)
+            if (dataTypeAndValue.length != 1)
                 map.put(URLDecoder.decode(dataTypeAndValue[0], "UTF-8"), URLDecoder.decode(dataTypeAndValue[1], "UTF-8"));
         }
         return map;

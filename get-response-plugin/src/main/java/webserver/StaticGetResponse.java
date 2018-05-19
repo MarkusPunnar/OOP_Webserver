@@ -33,7 +33,7 @@ public class StaticGetResponse implements RequestHandler {
                 } else {
                     Map<String, String> responseHeaders = new HashMap<>();
                     responseHeaders.put("Content-Type", "text/html");
-                    byte[] body = WebServerUtil.readFileFromClasspathDirectory("requiredfiles","404page.html");
+                    byte[] body = WebServerUtil.readFileFromClasspathDirectory("requiredfiles", "404page.html");
                     response = new Response(StatusCode.NOT_FOUND, responseHeaders, body);
                 }
             }
