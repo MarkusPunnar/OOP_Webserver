@@ -23,8 +23,7 @@ public class HandleRequestAndSendResponse implements Runnable {
         Response response;
         try {
             Request request = readRequest(socket);
-            MappingInfo correctHandler = findHandler(request);
-            FilterChain chain = new FilterChain(serverConfig.getFilters(), serverConfig.getDynamicResponseURIs().get(correctHandler));
+            FilterChain chain = new FilterChain(serverConfig.getFilters(), findHandler(request));
             response = chain.filter(request);
         } catch (Exception e) {
             response = new Response(StatusCode.INTERNAL_ERROR, Collections.emptyMap(), null);
@@ -36,14 +35,14 @@ public class HandleRequestAndSendResponse implements Runnable {
         }
     }
 
-    private MappingInfo findHandler(Request request) {
+    private HandlerInfo findHandler(Request request) {
         int matchesTried = 0;
         ArrayList<MappingInfo> dynamicResponseMappingInfoAsList = new ArrayList<>(serverConfig.getDynamicResponseURIs().keySet());
         compareMethodLength(dynamicResponseMappingInfoAsList);
         while (matchesTried != serverConfig.getDynamicResponseURIs().keySet().size()) {
             for (MappingInfo matchingRequestInfo : dynamicResponseMappingInfoAsList) {
                 if (checkURIMatching(matchingRequestInfo, request)) {
-                    return matchingRequestInfo;
+                    return serverConfig.getDynamicResponseURIs().get(matchingRequestInfo);
                 }
                 matchesTried++;
             }

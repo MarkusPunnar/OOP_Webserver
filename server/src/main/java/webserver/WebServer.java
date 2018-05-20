@@ -1,8 +1,8 @@
 package webserver;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.file.Paths;
 import java.util.*;
 
