@@ -12,7 +12,7 @@ public class LoginFilter implements Filter {
     public Response doFilter(Request request, FilterChain chain) throws Exception {
         Response response;
         Map<String, String> attributes = request.getRequestAttributes();
-        if (!request.getRequestURI().startsWith("/weather")) {
+        if (!request.getRequestURI().startsWith("/form")) {
             response = chain.filter(request);
             if (attributes.containsKey("loginToken")) {
                 loggedUsers.add(attributes.get("loginToken"));
