@@ -43,7 +43,7 @@ public class Request {
         Map<String, String> map = new HashMap<>();
         for (String string : requestDataParts) {
             String[] dataTypeAndValue = string.split("=");
-            if (dataTypeAndValue.length != 1)
+            if(dataTypeAndValue.length!=1)
                 map.put(URLDecoder.decode(dataTypeAndValue[0], "UTF-8"), URLDecoder.decode(dataTypeAndValue[1], "UTF-8"));
         }
         return map;
@@ -52,17 +52,20 @@ public class Request {
     public Map<String, Part> multipartBodyToForm() throws UnsupportedEncodingException {
         Map<String, Part> map = new HashMap<>();
         byte[] lineBreakD = "\r\n\r\n".getBytes();
+
         if (headers.get("Content-Type") == null)
             throw new RuntimeException("Content-Type header not found");
+
         String boundaryX = headers.get("Content-Type").get(0).split(";")[1].replace("boundary=", "").trim();
         byte[] boundary;
-        if (boundaryX.charAt(0) == '"') {
+
+        if (boundaryX.charAt(0) == '"')
             boundary = boundaryX.substring(1, boundaryX.length() - 1).getBytes("UTF-8");
-        }
-        else {
+        else
             boundary = boundaryX.getBytes("UTF-8");
-        }
-        List<byte[]> parts = split(body, boundary);
+
+
+        List<byte[]> parts = splitWithBoundary(body, boundary);
         for (byte[] part : parts) {
             String[] info = new String(split(part, lineBreakD).get(0)).split("\r\n");
             byte[] partValue = Arrays.copyOfRange(part, indexOf(part, lineBreakD, 0) + lineBreakD.length, part.length);
@@ -89,7 +92,7 @@ public class Request {
         return -1;
     }
 
-    private List<byte[]> split(byte[] body, byte[] splitter) {
+    private List<byte[]> splitWithBoundary(byte[] body, byte[] splitter) {
         List<byte[]> array = new ArrayList<>();
         int start = 0;
         int a = indexOf(body, splitter, start);
@@ -99,6 +102,20 @@ public class Request {
             a = indexOf(body, splitter, start);
         }
         array.remove(0);
+        return array;
+    }
+
+    private List<byte[]> split(byte[] body, byte[] splitter) {
+        List<byte[]> array = new ArrayList<>();
+        int start = 0;
+        int a = indexOf(body, splitter, start);
+        while (a != -1) {
+            array.add(Arrays.copyOfRange(body, start, a));
+            start = a + splitter.length + 1;
+            a = indexOf(body, splitter, start);
+            if(a==-1)
+                array.add(Arrays.copyOfRange(body, start,body.length));
+        }
         return array;
     }
 
