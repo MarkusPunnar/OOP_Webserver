@@ -2,6 +2,7 @@ package webserver;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,20 +18,12 @@ public class LoginPlugin implements RequestHandler {
     @Mapping(URI = "/login", method = "POST")
     public Response handle(Request request) throws Exception {
         Map<String, String> responseHeaders = new HashMap<>();
-        Map<String, String> currentUsers = new HashMap<>();
         byte[] body;
-        Path readUsersFromFilePath = Paths.get(directory.toString(), "passwords.txt");
         Map<String, String> dataMap = request.bodyToForm();
         if (dataMap == null) {
             return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
-        try (Scanner sc = new Scanner(readUsersFromFilePath, "UTF-8")) {
-            while (sc.hasNextLine()) {
-                String user = sc.nextLine();
-                String[] userInfo = user.split(": ");
-                currentUsers.put(userInfo[0], userInfo[1]);
-            }
-        }
+        Map<String, String> currentUsers = readHashedPasswordsToMap();
         String insertedUsername = dataMap.get("username");
         String insertedPassword = dataMap.get("password");
         if (currentUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, currentUsers.get(insertedUsername))) {
@@ -47,6 +40,19 @@ public class LoginPlugin implements RequestHandler {
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             return new Response(StatusCode.BAD_REQUEST, responseHeaders, body);
         }
+    }
+
+    private Map<String,String> readHashedPasswordsToMap() throws IOException {
+        Map<String, String> currentUsers = new HashMap<>();
+        Path readUsersFromFilePath = Paths.get(directory.toString(), "passwords.txt");
+        try (Scanner sc = new Scanner(readUsersFromFilePath, "UTF-8")) {
+            while (sc.hasNextLine()) {
+                String user = sc.nextLine();
+                String[] userInfo = user.split(": ");
+                currentUsers.put(userInfo[0], userInfo[1]);
+            }
+        }
+        return currentUsers;
     }
 
     public void initialize(ServerConfig sc) {

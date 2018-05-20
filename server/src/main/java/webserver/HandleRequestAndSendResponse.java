@@ -127,8 +127,11 @@ public class HandleRequestAndSendResponse implements Runnable {
     private byte[] readRequestBodyAsBytes(int bytesToRead, BufferedInputStream bf) throws IOException {
         byte[] requestBody = new byte[bytesToRead];
         int bytesRead = 0;
-        while (bytesToRead > 0 && bytesRead != -1) {
+        while (bytesToRead > 0) {
             int bytesReadFromStream = bf.read(requestBody, bytesRead, bytesToRead);
+            if (bytesReadFromStream == -1) {
+                break;
+            }
             bytesRead+=bytesReadFromStream;
             bytesToRead-=bytesReadFromStream;
         }
