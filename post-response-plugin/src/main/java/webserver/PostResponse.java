@@ -32,4 +32,8 @@ public class PostResponse implements RequestHandler {
         this.directory = sc.getDirectory();
     }
 
+    public void getPluginName() {
+        System.out.println("Post Response Plugin");
+    }
+
 }
