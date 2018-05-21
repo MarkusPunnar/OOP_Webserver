@@ -27,6 +27,7 @@ public class ToDoApp implements RequestHandler {
         String template = new String(WebServerUtil.readFileFromClasspath("app.html"), "UTF-8");
         Map<String, String> responseHeaders = new HashMap<>();
         String existingItems = "";
+        responseHeaders.put("Content-Type", "text/html");
         for (int taskID : toDoList.keySet()) {
             existingItems += "<li>" + toDoList.get(taskID) +
                     "<form action=\"/todoapp/delete/" + taskID + "\" method=\"post\">\n" +
