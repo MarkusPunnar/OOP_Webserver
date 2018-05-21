@@ -40,7 +40,7 @@ public class ToDoApp implements RequestHandler {
     }
 
     @Mapping(URI = "/todoapp/delete/*", method = "POST")
-    synchronized public Response deleteTask(Request request) throws UnsupportedEncodingException {
+    synchronized public Response deleteTask(Request request) {
         String uri = request.getRequestURI();
         int id = Integer.parseInt(uri.substring(uri.lastIndexOf("/") + 1));
         toDoList.remove(id);
@@ -51,9 +51,5 @@ public class ToDoApp implements RequestHandler {
 
     @Override
     public void initialize(ServerConfig sc) {
-    }
-
-    public void getPluginName() {
-        System.out.println("ToDoApp Plugin");
     }
 }

@@ -7,6 +7,7 @@ public enum StatusCode {
     FOUND(302, "Found"),
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
+    FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
     NOT_ALLOWED(405, "Method Not Allowed"),
     INTERNAL_ERROR(500, "Internal Server Error");

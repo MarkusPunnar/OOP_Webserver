@@ -70,7 +70,7 @@ public class WebServer {
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.initialize(motherOfAllPlugins);
             registration.register(requestHandler, pluginMap);
-            requestHandler.getPluginName();
+            System.out.println(requestHandler.getClass().getName());
         }
     }
 }

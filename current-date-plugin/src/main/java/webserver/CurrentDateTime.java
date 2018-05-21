@@ -26,8 +26,4 @@ public class CurrentDateTime implements RequestHandler {
     @Override
     public void initialize(ServerConfig sc) {
     }
-
-    public void getPluginName() {
-        System.out.println("Current Date Plugin");
-    }
 }

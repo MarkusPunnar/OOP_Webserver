@@ -24,8 +24,4 @@ public class CurrentWeather implements RequestHandler {
     @Override
     public void initialize(ServerConfig sc) {
     }
-
-    public void getPluginName() {
-        System.out.println("Current Weather Plugin");
-    }
 }

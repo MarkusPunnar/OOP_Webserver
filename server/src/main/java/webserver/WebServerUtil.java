@@ -3,11 +3,6 @@ package webserver;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
 
 public class WebServerUtil {
     protected static byte[] readFileFromClasspath(String fileName) throws IOException {

@@ -95,8 +95,4 @@ public class StaticGetResponse implements RequestHandler {
         this.directory = sc.getDirectory();
         this.mimeTypes = sc.getMimeTypes();
     }
-
-    public void getPluginName() {
-        System.out.println("Get Response Plugin");
-    }
 }

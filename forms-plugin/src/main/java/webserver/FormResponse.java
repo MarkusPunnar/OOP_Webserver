@@ -46,8 +46,4 @@ public class FormResponse implements RequestHandler {
     @Override
     public void initialize(ServerConfig sc) {
     }
-
-    public void getPluginName() {
-        System.out.println("Form Handle Plugin");
-    }
 }

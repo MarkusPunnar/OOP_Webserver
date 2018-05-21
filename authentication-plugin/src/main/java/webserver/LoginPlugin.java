@@ -58,8 +58,4 @@ public class LoginPlugin implements RequestHandler {
     public void initialize(ServerConfig sc) {
         this.directory = sc.getDirectory();
     }
-
-    public void getPluginName() {
-        System.out.println("Login Plugin");
-    }
 }
