@@ -35,6 +35,7 @@ public class BasicAuthenticationFilter implements Filter {
             String insertedUsername = loginParts[0];
             String insertedPassword = loginParts[1];
             if (checkAuthorizedAndRegisteredUsers(insertedUsername, insertedPassword)) {
+                request.getRequestAttributes().put("authorized-user", insertedUsername);
                 return chain.filter(request);
             }
         }
