@@ -43,7 +43,7 @@ public class Request {
         Map<String, String> map = new HashMap<>();
         for (String string : requestDataParts) {
             String[] dataTypeAndValue = string.split("=");
-            if(dataTypeAndValue.length!=1)
+            if (dataTypeAndValue.length != 1)
                 map.put(URLDecoder.decode(dataTypeAndValue[0], "UTF-8"), URLDecoder.decode(dataTypeAndValue[1], "UTF-8"));
         }
         return map;
@@ -113,8 +113,8 @@ public class Request {
             array.add(Arrays.copyOfRange(body, start, a));
             start = a + splitter.length + 1;
             a = indexOf(body, splitter, start);
-            if(a==-1)
-                array.add(Arrays.copyOfRange(body, start,body.length));
+            if (a == -1)
+                array.add(Arrays.copyOfRange(body, start, body.length));
         }
         return array;
     }
