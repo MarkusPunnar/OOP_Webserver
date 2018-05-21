@@ -10,8 +10,13 @@ import java.util.Map;
 
 public class BasicAuthenticationFilter implements Filter {
 
-    private Map<String, String> registeredUsers = new HashMap<>();
-    private Map<String, String> authorizedUsers = new HashMap<>();
+    private final Map<String, String> registeredUsers;
+    private final Map<String, String> authorizedUsers;
+
+    public BasicAuthenticationFilter() throws IOException {
+        this.registeredUsers = AuthenticationUtil.readRegisteredUsersToMap();
+        this.authorizedUsers = new HashMap<>();
+    }
 
     public Response doFilter(Request request, FilterChain chain) throws Exception {
         if (!request.getRequestURI().startsWith("/todoapp")) {
@@ -27,12 +32,9 @@ public class BasicAuthenticationFilter implements Filter {
             byte[] loginDataByteArray = Base64.getDecoder().decode(loginDataInBase64);
             String loginData = new String(loginDataByteArray, StandardCharsets.UTF_8);
             String[] loginParts = loginData.split(":");
-            readRegisteredUsersToMap();
-            if (authorizedUsers.containsKey(loginParts[0])) {
-                return chain.filter(request);
-            }
-            if (registeredUsers.containsKey(loginParts[0]) && BCrypt.checkpw(loginParts[1], registeredUsers.get(loginParts[0]))) {
-                authorizedUsers.put(loginParts[0], loginParts[1]);
+            String insertedUsername = loginParts[0];
+            String insertedPassword = loginParts[1];
+            if (checkAuthorizedAndRegisteredUsers(insertedUsername, insertedPassword)) {
                 return chain.filter(request);
             }
         }
@@ -40,16 +42,18 @@ public class BasicAuthenticationFilter implements Filter {
         return new Response(StatusCode.UNAUTHORIZED, responseHeaders, null);
     }
 
-    private void readRegisteredUsersToMap() throws IOException {
-        byte[] allRegisteredUsersAsByteArray = WebServerUtil.readFileFromClasspath("passwords.txt");
-        if (allRegisteredUsersAsByteArray != null) {
-            String allRegisteredUsers = new String(allRegisteredUsersAsByteArray, StandardCharsets.UTF_8);
-            allRegisteredUsers = allRegisteredUsers.replaceAll("\r\n", "\n");
-            String[] users = allRegisteredUsers.split("\n");
-            for (String user : users) {
-                String[] userDataParts = user.split(": ");
-                registeredUsers.put(userDataParts[0], userDataParts[1]);
+    private boolean checkAuthorizedAndRegisteredUsers(String insertedUsername, String insertedPassword) {
+        synchronized (authorizedUsers) {
+            if (authorizedUsers.containsKey(insertedUsername) && authorizedUsers.get(insertedUsername).equals(insertedPassword)) {
+                return true;
             }
         }
+        if (registeredUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, registeredUsers.get(insertedUsername))) {
+            synchronized (authorizedUsers) {
+                authorizedUsers.put(insertedUsername, insertedPassword);
+                return true;
+            }
+        }
+        return false;
     }
 }

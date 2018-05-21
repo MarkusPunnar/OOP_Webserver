@@ -1,5 +1,6 @@
 package webserver;
 
+import javax.print.DocFlavor;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -35,7 +36,6 @@ public class WebServer {
             Map<String, String> mimeTypes = readMimeTypesFromFile();
             List<Filter> filters = createFilterInstances();
             ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, new HashMap<>(), filters);
-            System.out.println("Connected plugins:");
             createPluginInstances(motherOfAllPlugins, motherOfAllPlugins.getDynamicResponseURIs());
             Thread httpSocketListener = new Thread(new MultipleListeningSockets(httpSocket, motherOfAllPlugins));
             Thread httpsSocketListener = new Thread(new MultipleListeningSockets(httpsSocket, motherOfAllPlugins));
@@ -70,7 +70,7 @@ public class WebServer {
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.initialize(motherOfAllPlugins);
             registration.register(requestHandler, pluginMap);
-            System.out.println(requestHandler.getClass().getName());
+            System.out.println("Registered plugin: " + requestHandler.getClass().getName());
         }
     }
 }
