@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 public class LoginHandler implements RequestHandler {
 
-    private Path directory;
+    private Map<String, String> currentUsers;
 
     @Mapping(URI = "/todoapp/login", method = "POST")
     public Response handle(Request request) throws Exception {
@@ -23,7 +23,6 @@ public class LoginHandler implements RequestHandler {
         if (dataMap == null) {
             return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
-        Map<String, String> currentUsers = readHashedPasswordsToMap();
         String insertedUsername = dataMap.get("username");
         String insertedPassword = dataMap.get("password");
         if (currentUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, currentUsers.get(insertedUsername))) {
@@ -46,18 +45,25 @@ public class LoginHandler implements RequestHandler {
 
     private Map<String,String> readHashedPasswordsToMap() throws IOException {
         Map<String, String> currentUsers = new HashMap<>();
-        Path readUsersFromFilePath = Paths.get(directory.toString(), "passwords.txt");
-        try (Scanner sc = new Scanner(readUsersFromFilePath, "UTF-8")) {
-            while (sc.hasNextLine()) {
-                String user = sc.nextLine();
-                String[] userInfo = user.split(": ");
-                currentUsers.put(userInfo[0], userInfo[1]);
-            }
+        byte[] registeredUsersAsByteArray = WebServerUtil.readFileFromClasspath("passwords.txt");
+        if (registeredUsersAsByteArray == null) {
+            throw new RuntimeException("Can't access authentication password file");
+        }
+        String registeredUsersAsString = new String(registeredUsersAsByteArray, StandardCharsets.UTF_8);
+        registeredUsersAsString = registeredUsersAsString.replace("\r\n", "\n");
+        String[] userInfo = registeredUsersAsString.split("\n");
+        for (String user: userInfo) {
+            String[] userParts = user.split(": ");
+            currentUsers.put(userParts[0], userParts[1]);
         }
         return currentUsers;
     }
 
     public void initialize(ServerConfig sc) {
-        this.directory = sc.getDirectory();
+        try {
+            this.currentUsers = readHashedPasswordsToMap();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -15,7 +15,7 @@ public class RegisterHandler implements RequestHandler {
     private Path directory;
     private Set<String> userNames = new HashSet<>();
 
-    @Mapping(URI = "/register", method = "POST")
+    @Mapping(URI = "/todoapp/register", method = "POST")
     public Response handle(Request request) throws Exception {
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;

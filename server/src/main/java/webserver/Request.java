@@ -153,14 +153,17 @@ public class Request {
     public String getCookieValue(String cookieName) {
         List<String> requestCookies = headers.get("Cookie");
         if (requestCookies == null) {
-            return "";
+            return null;
         }
         for (String cookie : requestCookies) {
+            if (cookie.indexOf('=') == -1) {
+                continue;
+            }
             if (cookie.substring(0, cookie.indexOf('=')).equals(cookieName)) {
                 return cookie.substring(cookie.indexOf('=') + 1);
             }
         }
-        return "";
+        return null;
     }
 
     public Map<String, String> getAttributes() {
