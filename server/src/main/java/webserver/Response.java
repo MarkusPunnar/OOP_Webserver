@@ -1,6 +1,5 @@
 package webserver;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 public class Response {
@@ -12,8 +11,6 @@ public class Response {
     public Response(StatusCode statusCode, Map<String, String> headers, byte[] body) {
         this.statusCode = statusCode;
         this.headers = headers;
-        if(!headers.containsKey("Content-Type"))
-            headers.put("Content-Type", "text/plain");
         this.body = body;
     }
 

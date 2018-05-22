@@ -29,11 +29,13 @@ public class LoginPlugin implements RequestHandler {
         if (currentUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, currentUsers.get(insertedUsername))) {
             String loginToken = BCrypt.gensalt(30);
             request.getRequestAttributes().put("loginToken", loginToken);
+            request.getRequestAttributes().put("user", insertedUsername);
             body = "Login successful".getBytes(StandardCharsets.UTF_8);
+            responseHeaders.put("Location", "/todoapp/form");
             responseHeaders.put("Content-Type", "text/plain");
             responseHeaders.put("Content-Length", String.valueOf(body.length));
             responseHeaders.put("Set-Cookie", "login=" + loginToken + "; Path=/");
-            return new Response(StatusCode.OK, responseHeaders, body);
+            return new Response(StatusCode.FOUND, responseHeaders, body);
         } else {
             body = "Invalid username or password".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Content-Type", "text/plain");

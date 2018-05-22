@@ -1,6 +1,7 @@
 package webserver;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ToDoApp implements RequestHandler {
@@ -43,7 +44,7 @@ public class ToDoApp implements RequestHandler {
         if(taskMap.containsKey(user))
             map = taskMap.get(user);
         else {
-            map = new HashMap<Integer, String>();
+            map = new HashMap<>();
             taskMap.put(user, map);
         }
 
@@ -65,13 +66,6 @@ public class ToDoApp implements RequestHandler {
         int id = Integer.parseInt(uri.substring(uri.lastIndexOf("/") + 1));
         String user = request.getRequestAttributes().get("authorized-user");
         taskMap.get(user).remove(id);
-        Map<String, String> responseHeaders = new HashMap<>();
-        responseHeaders.put("Location", "/todoapp/form");
-        return new Response(StatusCode.FOUND, responseHeaders, null);
-    }
-
-    @Mapping(URI = "todoapp/logout", method = "POST")
-    synchronized  public Response logout(Request request){
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("Location", "/todoapp/form");
         return new Response(StatusCode.FOUND, responseHeaders, null);
