@@ -12,7 +12,7 @@ public class Request {
     private String requestMethod;
     private String requestURI;
     private Map<String, String> parameters = new HashMap<>();
-    private Map<String, String> requestAttributes = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>();
 
     public Request(String requestMethod, String requestURI, Map<String, List<String>> headers, byte[] body) throws UnsupportedEncodingException {
         int parameterStart = requestURI.indexOf("?");
@@ -150,8 +150,21 @@ public class Request {
         return parameters;
     }
 
-    public Map<String, String> getRequestAttributes() {
-        return requestAttributes;
+    public String getCookieValue(String cookieName) {
+        List<String> requestCookies = headers.get("Cookie");
+        if (requestCookies == null) {
+            return "";
+        }
+        for (String cookie : requestCookies) {
+            if (cookie.substring(0, cookie.indexOf('=')).equals(cookieName)) {
+                return cookie.substring(cookie.indexOf('=') + 1);
+            }
+        }
+        return "";
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 }
 

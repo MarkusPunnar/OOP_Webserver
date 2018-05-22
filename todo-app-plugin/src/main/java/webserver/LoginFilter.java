@@ -1,40 +1,39 @@
 package webserver;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LoginFilter implements Filter {
 
-    private Map<String, String> loggedUsers = new HashMap<>();
+    private final Map<String, String> loggedUsers = new HashMap<>();
+    private final List<String> publicResource = Arrays.asList("/todoapp/login", "/todoapp/loginform.html", "/todoapp/registerform.html");
 
     public Response doFilter(Request request, FilterChain chain) throws Exception {
         Response response;
-        Map<String, String> attributes = request.getRequestAttributes();
-        if (!request.getRequestURI().startsWith("/todoapp")) {
+        Map<String, String> attributes = request.getAttributes();
+        String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/todoapp") && publicResource.contains(requestURI)) {
             response = chain.filter(request);
-            if (attributes.containsKey("loginToken")) {
-                loggedUsers.put(attributes.get("loginToken"), attributes.get("user"));
-                attributes.remove("loginToken");
+            synchronized (loggedUsers) {
+                if (attributes.containsKey("loginToken")) {
+                    loggedUsers.put(attributes.get("loginToken"), attributes.get("user"));
+                    attributes.remove("loginToken");
+                }
             }
-        } else {
-            Map<String, String> responseHeaders = new HashMap<>();
+            return response;
+        }
+        Map<String, String> responseHeaders = new HashMap<>();
+        synchronized (loggedUsers) {
             if (request.getRequestURI().equals("/todoapp/logout")) {
-                loggedUsers.remove(request.getHeaders().get("Cookie").get(0).split("=")[1]);
-                byte[] body = "Logout successful".getBytes(StandardCharsets.UTF_8);
-                responseHeaders.put("Content-Type", "text/plain");
-                responseHeaders.put("Content-Length", String.valueOf(body.length));
-                return new Response(StatusCode.OK, responseHeaders, body);
+                loggedUsers.remove(request.getCookieValue("login"));
+                responseHeaders.put("Location", "/todoapp/loginform.html");
+                return new Response(StatusCode.FOUND, responseHeaders, null);
             }
-            if (request.getHeaders().containsKey("Cookie") && loggedUsers.containsKey(request.getHeaders().get("Cookie").get(0).split("=")[1])) {
-                attributes.put("authorized-user", loggedUsers.get(request.getHeaders().get("Cookie").get(0).split("=")[1]));
+            if (request.getHeaders().containsKey("Cookie") && loggedUsers.containsKey(request.getCookieValue("login"))) {
+                attributes.put("authorized-user", loggedUsers.get(request.getCookieValue("login")));
                 return chain.filter(request);
             }
-            responseHeaders.put("Location", "/loginform.html");
-            return new Response(StatusCode.FOUND, responseHeaders, null);
         }
-        return response;
+        responseHeaders.put("Location", "/todoapp/loginform.html");
+        return new Response(StatusCode.FOUND, responseHeaders, null);
     }
 }

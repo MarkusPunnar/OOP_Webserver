@@ -11,7 +11,7 @@ public class ToDoApp implements RequestHandler {
 
     @Mapping(URI = "/todoapp/form", method = "POST")
     synchronized public Response handle(Request request) throws UnsupportedEncodingException {
-        String user = request.getRequestAttributes().get("authorized-user");
+        String user = request.getAttributes().get("authorized-user");
         Map<String, String> responseHeaders = new HashMap<>();
         String task = request.bodyToForm().get("user_message");
         if (task != null) {
@@ -38,7 +38,7 @@ public class ToDoApp implements RequestHandler {
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("Content-Type", "text/html");
         String existingItems = "";
-        String user = request.getRequestAttributes().get("authorized-user");
+        String user = request.getAttributes().get("authorized-user");
         Map<Integer, String> map;
 
         if(taskMap.containsKey(user))
@@ -64,7 +64,7 @@ public class ToDoApp implements RequestHandler {
     synchronized public Response deleteTask(Request request) {
         String uri = request.getRequestURI();
         int id = Integer.parseInt(uri.substring(uri.lastIndexOf("/") + 1));
-        String user = request.getRequestAttributes().get("authorized-user");
+        String user = request.getAttributes().get("authorized-user");
         taskMap.get(user).remove(id);
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("Location", "/todoapp/form");

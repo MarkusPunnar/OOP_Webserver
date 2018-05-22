@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
-public class RegisterPlugin implements RequestHandler {
+public class RegisterHandler implements RequestHandler {
 
     private Path directory;
     private Set<String> userNames = new HashSet<>();

@@ -11,11 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class LoginPlugin implements RequestHandler {
+public class LoginHandler implements RequestHandler {
 
     private Path directory;
 
-    @Mapping(URI = "/login", method = "POST")
+    @Mapping(URI = "/todoapp/login", method = "POST")
     public Response handle(Request request) throws Exception {
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
@@ -28,8 +28,8 @@ public class LoginPlugin implements RequestHandler {
         String insertedPassword = dataMap.get("password");
         if (currentUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, currentUsers.get(insertedUsername))) {
             String loginToken = BCrypt.gensalt(30);
-            request.getRequestAttributes().put("loginToken", loginToken);
-            request.getRequestAttributes().put("user", insertedUsername);
+            request.getAttributes().put("loginToken", loginToken);
+            request.getAttributes().put("user", insertedUsername);
             body = "Login successful".getBytes(StandardCharsets.UTF_8);
             responseHeaders.put("Location", "/todoapp/form");
             responseHeaders.put("Content-Type", "text/plain");
