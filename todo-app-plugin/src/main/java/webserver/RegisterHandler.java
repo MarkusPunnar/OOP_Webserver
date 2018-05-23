@@ -12,19 +12,19 @@ import java.util.*;
 
 public class RegisterHandler implements RequestHandler {
 
-    private Path directory;
     private Set<String> userNames = new HashSet<>();
+    private AuthUserInfo registeredUserInfo;
 
     @Mapping(URI = "/todoapp/register", method = "POST")
     public Response handle(Request request) throws Exception {
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
-        Path writeToFilePath = Paths.get(directory.toString(), "passwords.txt");
         Map<String, String> dataMap = request.bodyToForm();
         if (dataMap == null) {
             return new Response(StatusCode.BAD_REQUEST, Collections.emptyMap(), null);
         }
         String userName = dataMap.get("username");
+        Path writeToFilePath = Paths.get(System.getProperty("todo.passwords"));
         try (Scanner sc = new Scanner(writeToFilePath.toFile(), "UTF-8")) {
             while (sc.hasNextLine()) {
                 String user = sc.nextLine();
@@ -50,10 +50,14 @@ public class RegisterHandler implements RequestHandler {
             writer.write(userName + ": " + hashedPw);
             writer.newLine();
         }
-        return new Response(StatusCode.OK, Collections.emptyMap(), null);
+        registeredUserInfo.getCurrentRegisteredUsers().put(userName, hashedPw);
+        responseHeaders.put("Location", "/todoapp/loginform.html");
+        return new Response(StatusCode.FOUND, responseHeaders, null);
     }
 
     public void initialize(ServerConfig sc) {
-        this.directory = sc.getDirectory();
+        if (sc.getAttributes().get("user") instanceof AuthUserInfo) {
+            this.registeredUserInfo = (AuthUserInfo) sc.getAttributes().get("user");
+        }
     }
 }

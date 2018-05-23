@@ -1,6 +1,7 @@
 package webserver;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,13 +9,13 @@ public class ServerConfig {
 
     private Path directory;
     private Map<String, String> mimeTypes;
-    private Map<MappingInfo, HandlerInfo> dynamicResponseURIs;
+    private Map<MappingInfo, HandlerInfo> dynamicResponseURIs = new HashMap<>();
     private List<Filter> filters;
+    private Map<String, Object> attributes = new HashMap<>();
 
-    public ServerConfig(Path directory, Map<String, String> mimeTypes, Map<MappingInfo, HandlerInfo> dynamicResponseURIs, List<Filter> filters) {
+    public ServerConfig(Path directory, Map<String, String> mimeTypes, List<Filter> filters) {
         this.directory = directory;
         this.mimeTypes = mimeTypes;
-        this.dynamicResponseURIs = dynamicResponseURIs;
         this.filters = filters;
     }
 
@@ -32,5 +33,9 @@ public class ServerConfig {
 
     public List<Filter> getFilters() {
         return filters;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 }

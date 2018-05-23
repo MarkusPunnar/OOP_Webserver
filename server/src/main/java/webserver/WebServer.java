@@ -34,7 +34,7 @@ public class WebServer {
              ServerSocket httpsSocket = new SSLHandler().getSSLHandler(1338)) {
             Map<String, String> mimeTypes = readMimeTypesFromFile();
             List<Filter> filters = createFilterInstances();
-            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, new HashMap<>(), filters);
+            ServerConfig motherOfAllPlugins = new ServerConfig(Paths.get(dirName), mimeTypes, filters);
             createPluginInstances(motherOfAllPlugins, motherOfAllPlugins.getDynamicResponseURIs());
             Thread httpSocketListener = new Thread(new MultipleListeningSockets(httpSocket, motherOfAllPlugins));
             Thread httpsSocketListener = new Thread(new MultipleListeningSockets(httpsSocket, motherOfAllPlugins));
@@ -64,12 +64,12 @@ public class WebServer {
         return mimeMap;
     }
 
-    private void createPluginInstances(ServerConfig motherOfAllPlugins, Map<MappingInfo, HandlerInfo> pluginMap) {
+    private void createPluginInstances(ServerConfig motherOfAllPlugins, Map<MappingInfo, HandlerInfo> pluginMap) throws Exception {
         HandlerRegistration registration = new HandlerRegistration();
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
+            System.out.println("Registered plugin: " + requestHandler.getClass().getName());
             requestHandler.initialize(motherOfAllPlugins);
             registration.register(requestHandler, pluginMap);
-            System.out.println("Registered plugin: " + requestHandler.getClass().getName());
         }
     }
 }

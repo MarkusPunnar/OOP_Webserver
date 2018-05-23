@@ -1,6 +1,7 @@
 package webserver;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -77,6 +78,10 @@ public class StaticGetResponse implements RequestHandler {
 
     private Response responseWithPluginFile(Request request) throws IOException {
         Map<String, String> responseHeaders = new HashMap<>();
+        if (System.getProperty("todo.passwords") == null && request.getRequestURI().equals("/todoapp/registerform.html")) {
+            responseHeaders.put("Content-Type", "text/plain");
+            return new Response(StatusCode.BAD_REQUEST, responseHeaders, "Registration not allowed".getBytes(StandardCharsets.UTF_8));
+        }
         byte[] body = WebServerUtil.readFileFromClasspathDirectory("requiredfiles", request.getRequestURI().substring(1));
         if (body == null) {
             return null;

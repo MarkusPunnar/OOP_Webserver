@@ -2,18 +2,15 @@ package webserver;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class LoginHandler implements RequestHandler {
 
-    private Map<String, String> currentUsers;
+    private Map<String, String> currentRegisteredUsers;
 
     @Mapping(URI = "/todoapp/login", method = "POST")
     public Response handle(Request request) throws Exception {
@@ -25,7 +22,7 @@ public class LoginHandler implements RequestHandler {
         }
         String insertedUsername = dataMap.get("username");
         String insertedPassword = dataMap.get("password");
-        if (currentUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, currentUsers.get(insertedUsername))) {
+        if (currentRegisteredUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, currentRegisteredUsers.get(insertedUsername))) {
             String loginToken = BCrypt.gensalt(30);
             request.getAttributes().put("loginToken", loginToken);
             request.getAttributes().put("user", insertedUsername);
@@ -43,27 +40,17 @@ public class LoginHandler implements RequestHandler {
         }
     }
 
-    private Map<String,String> readHashedPasswordsToMap() throws IOException {
-        Map<String, String> currentUsers = new HashMap<>();
-        byte[] registeredUsersAsByteArray = WebServerUtil.readFileFromClasspath("passwords.txt");
-        if (registeredUsersAsByteArray == null) {
-            throw new RuntimeException("Can't access authentication password file");
+    public void initialize(ServerConfig sc) throws Exception {
+        if (System.getProperty("todo.passwords") == null) {
+            System.out.println("Password file not configured. Only default user accessible.");
+            System.out.println("Username: admin");
+            System.out.println("Password: admin");
+            System.out.println("To configure passwords file, set System property \"todo.passwords=filePath\"");
+            this.currentRegisteredUsers = Map.of("admin", BCrypt.hashpw("admin", BCrypt.gensalt()));
+        } else {
+            this.currentRegisteredUsers = AuthenticationUtil.readHashedPasswordsToMap(Paths.get(System.getProperty("todo.passwords")));
         }
-        String registeredUsersAsString = new String(registeredUsersAsByteArray, StandardCharsets.UTF_8);
-        registeredUsersAsString = registeredUsersAsString.replace("\r\n", "\n");
-        String[] userInfo = registeredUsersAsString.split("\n");
-        for (String user: userInfo) {
-            String[] userParts = user.split(": ");
-            currentUsers.put(userParts[0], userParts[1]);
-        }
-        return currentUsers;
-    }
-
-    public void initialize(ServerConfig sc) {
-        try {
-            this.currentUsers = readHashedPasswordsToMap();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        AuthUserInfo info = new AuthUserInfo(currentRegisteredUsers);
+        sc.getAttributes().put("user", info);
     }
 }
