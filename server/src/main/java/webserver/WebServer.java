@@ -64,7 +64,7 @@ public class WebServer {
         return mimeMap;
     }
 
-    private void createPluginInstances(ServerConfig motherOfAllPlugins, Map<MappingInfo, HandlerInfo> pluginMap) {
+    private void createPluginInstances(ServerConfig motherOfAllPlugins, Map<MappingInfo, HandlerInfo> pluginMap) throws IOException {
         HandlerRegistration registration = new HandlerRegistration();
         for (RequestHandler requestHandler : ServiceLoader.load(RequestHandler.class)) {
             requestHandler.initialize(motherOfAllPlugins);
