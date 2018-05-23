@@ -12,7 +12,7 @@ import java.util.*;
 
 public class RegisterHandler implements RequestHandler {
 
-    private AuthUsersUtil registeredUserInfo;
+    private AuthUsersRegistry registeredUserInfo;
 
     @Mapping(URI = "/todoapp/register", method = "POST")
     public Response handle(Request request) throws Exception {
@@ -56,8 +56,8 @@ public class RegisterHandler implements RequestHandler {
     }
 
     public void initialize(ServerConfig sc) {
-        if (sc.getAttributes().get("user") instanceof AuthUsersUtil) {
-            this.registeredUserInfo = (AuthUsersUtil) sc.getAttributes().get("user");
+        if (sc.getAttributes().get("user") instanceof AuthUsersRegistry) {
+            this.registeredUserInfo = (AuthUsersRegistry) sc.getAttributes().get("user");
         }
     }
 }

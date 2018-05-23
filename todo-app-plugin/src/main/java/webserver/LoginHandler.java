@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LoginHandler implements RequestHandler {
 
-    private AuthUsersUtil registeredUsersInfo;
+    private AuthUsersRegistry registeredUsersInfo;
 
     @Mapping(URI = "/todoapp/login", method = "POST")
     public Response handle(Request request) throws Exception {
@@ -51,7 +51,7 @@ public class LoginHandler implements RequestHandler {
         } else {
             currentRegisteredUsers = AuthenticationUtil.readHashedPasswordsToMap(Paths.get(System.getProperty("todo.passwords")));
         }
-        this.registeredUsersInfo = new AuthUsersUtil(currentRegisteredUsers);
+        this.registeredUsersInfo = new AuthUsersRegistry(currentRegisteredUsers);
         sc.getAttributes().put("user", registeredUsersInfo);
     }
 }

@@ -17,7 +17,7 @@ public class LoginFilter implements Filter {
         if (!requestURI.startsWith("/todoapp") || publicResources.contains(requestURI)) {
             if (System.getProperty("todo.passwords") == null && request.getRequestURI().equals("/todoapp/registerform.html")) {
                 responseHeaders.put("Content-Type", "text/plain");
-                return new Response(StatusCode.BAD_REQUEST, responseHeaders, "Registration not allowed".getBytes(StandardCharsets.UTF_8));
+                return new Response(StatusCode.UNAVAILABLE, responseHeaders, "Registration not allowed".getBytes(StandardCharsets.UTF_8));
             }
             response = chain.filter(request);
             if (attributes.containsKey("loginToken")) {
