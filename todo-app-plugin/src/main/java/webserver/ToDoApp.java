@@ -10,7 +10,7 @@ import java.util.*;
 public class ToDoApp implements RequestHandler {
 
     private final Map<String, Map<Integer, String>> taskMap = new HashMap<>();
-    private final List<String> usedIDList = new ArrayList<>();
+    private final List<Integer> usedIDList = new ArrayList<>();
 
     @Mapping(URI = "/todoapp/form", method = "POST")
     synchronized public Response handle(Request request) throws IOException {
@@ -22,7 +22,7 @@ public class ToDoApp implements RequestHandler {
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
             if (!usedIDList.contains(String.valueOf(i))) {
                 taskCounter = i;
-                usedIDList.add(String.valueOf(i));
+                usedIDList.add(i);
                 break;
             }
         }
@@ -87,7 +87,7 @@ public class ToDoApp implements RequestHandler {
     }
 
     synchronized private void addToFile(String task) throws IOException {
-        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.txt"))) {
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.dat"))) {
             dos.writeUTF(task);
         }
     }
@@ -95,10 +95,12 @@ public class ToDoApp implements RequestHandler {
     synchronized private void removeFromFile(String id, String user) throws IOException {
 
         List<String> newFile = new ArrayList<>();
+        int counter = 0;
 
-        try (DataInputStream dis = new DataInputStream(new FileInputStream("private/tasks.txt"))) {
-            String line = dis.readUTF();
-            while (line != null) {
+        try (DataInputStream dis = new DataInputStream(new FileInputStream("private/tasks.dat"))) {
+            counter = dis.readInt();
+            for (int i = 0; i < counter; i++) {
+                String line = dis.readUTF();
                 String[] parts = line.split(" ");
                 if (!parts[0].equals(id) || !parts[1].equals(user)) {
                     newFile.add(line);
@@ -106,12 +108,7 @@ public class ToDoApp implements RequestHandler {
             }
         }
 
-        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.txt"))) {
-            String usedIDString = "";
-            for (String usedID : usedIDList) {
-                usedIDString += usedID + " ";
-            }
-            dos.writeUTF(usedIDString);
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.dat"))) {
             for (String line : newFile) {
                 dos.writeUTF(line);
             }
@@ -120,19 +117,19 @@ public class ToDoApp implements RequestHandler {
 
     @Override
     public void initialize(ServerConfig sc) throws IOException {
-        /*try (DataInputStream dis = new DataInputStream(new FileInputStream("private/tasks.txt"))) {
 
-            String line = dis.readUTF();
-            if (line != null) {
-                String[] IDListAsString = line.split(" ");
-                for (String id : IDListAsString) {
-                    if (!id.equals(""))
-                        this.usedIDList.add(id);
-                }
-            }
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.dat"))){
+            dos.writeInt(0);
+        }
 
-            while (line != null) {
+        try (DataInputStream dis = new DataInputStream(new FileInputStream("private/tasks.dat"))) {
+
+            int count = dis.readInt();
+            for (int i = 0; i < count; i++) {
+                String line = dis.readUTF();
                 String[] parts = line.split(" ");
+                int id = Integer.parseInt(parts[0]);
+                usedIDList.add(id);
                 String user = parts[1];
                 if (taskMap.containsKey(user)) {
                     Map<Integer, String> oldMap = taskMap.get(user);
@@ -143,6 +140,6 @@ public class ToDoApp implements RequestHandler {
                     taskMap.put(user, newMap);
                 }
             }
-        }*/
+        }
     }
 }
