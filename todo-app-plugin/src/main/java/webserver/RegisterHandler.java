@@ -12,11 +12,11 @@ import java.util.*;
 
 public class RegisterHandler implements RequestHandler {
 
-    private Set<String> userNames = new HashSet<>();
-    private AuthUserInfo registeredUserInfo;
+    private AuthUsersUtil registeredUserInfo;
 
     @Mapping(URI = "/todoapp/register", method = "POST")
     public Response handle(Request request) throws Exception {
+        Set<String> userNames = new HashSet<>();
         Map<String, String> responseHeaders = new HashMap<>();
         byte[] body;
         Map<String, String> dataMap = request.bodyToForm();
@@ -50,14 +50,14 @@ public class RegisterHandler implements RequestHandler {
             writer.write(userName + ": " + hashedPw);
             writer.newLine();
         }
-        registeredUserInfo.getCurrentRegisteredUsers().put(userName, hashedPw);
+        registeredUserInfo.add(userName, hashedPw);
         responseHeaders.put("Location", "/todoapp/loginform.html");
         return new Response(StatusCode.FOUND, responseHeaders, null);
     }
 
     public void initialize(ServerConfig sc) {
-        if (sc.getAttributes().get("user") instanceof AuthUserInfo) {
-            this.registeredUserInfo = (AuthUserInfo) sc.getAttributes().get("user");
+        if (sc.getAttributes().get("user") instanceof AuthUsersUtil) {
+            this.registeredUserInfo = (AuthUsersUtil) sc.getAttributes().get("user");
         }
     }
 }

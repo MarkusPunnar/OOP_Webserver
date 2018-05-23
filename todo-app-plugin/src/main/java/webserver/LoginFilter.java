@@ -1,5 +1,6 @@
 package webserver;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,7 +13,12 @@ public class LoginFilter implements Filter {
         Response response;
         Map<String, String> attributes = request.getAttributes();
         String requestURI = request.getRequestURI();
+        Map<String, String> responseHeaders = new HashMap<>();
         if (!requestURI.startsWith("/todoapp") || publicResources.contains(requestURI)) {
+            if (System.getProperty("todo.passwords") == null && request.getRequestURI().equals("/todoapp/registerform.html")) {
+                responseHeaders.put("Content-Type", "text/plain");
+                return new Response(StatusCode.BAD_REQUEST, responseHeaders, "Registration not allowed".getBytes(StandardCharsets.UTF_8));
+            }
             response = chain.filter(request);
             if (attributes.containsKey("loginToken")) {
                 loggedUsers.put(attributes.get("loginToken"), attributes.get("user"));
@@ -20,7 +26,6 @@ public class LoginFilter implements Filter {
             }
             return response;
         }
-        Map<String, String> responseHeaders = new HashMap<>();
         if (request.getRequestURI().equals("/todoapp/logout")) {
             if (!request.getRequestMethod().equals("POST")) {
                 return new Response(StatusCode.NOT_ALLOWED, responseHeaders, null);
@@ -31,7 +36,7 @@ public class LoginFilter implements Filter {
         }
         String cookieValue = loggedUsers.get(request.getCookieValue("login"));
         if (cookieValue != null) {
-            attributes.put("authorized-user", loggedUsers.get(request.getCookieValue("login")));
+            attributes.put("authorized-user", cookieValue);
             return chain.filter(request);
         }
         responseHeaders.put("Location", "/todoapp/loginform.html");

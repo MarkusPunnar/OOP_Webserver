@@ -86,15 +86,15 @@ public class ToDoApp implements RequestHandler {
         return new Response(StatusCode.FOUND, responseHeaders, null);
     }
 
-    synchronized public void addToFile(String task) throws IOException {
-        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"))) {
+    private synchronized void addToFile(String task) throws IOException {
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("tasks.txt"))) {
             bw.write(task);
         }
     }
 
-    synchronized public void removeFromFile(String id, String user) throws IOException {
-        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"), StandardOpenOption.TRUNCATE_EXISTING);
-             BufferedReader br = new BufferedReader(new FileReader(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"))) {
+    private synchronized void removeFromFile(String id, String user) throws IOException {
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("tasks.txt"), StandardOpenOption.TRUNCATE_EXISTING);
+             BufferedReader br = Files.newBufferedReader(Paths.get("tasks.txt"))) {
             String line = br.readLine();
             String usedIDString = "";
             for (String usedID : usedIDList) {
@@ -111,18 +111,16 @@ public class ToDoApp implements RequestHandler {
 
     @Override
     public void initialize(ServerConfig sc) throws IOException {
-        try (BufferedReader br = new BufferedReader(new FileReader(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"))) {
-
+        /*try (BufferedReader br = Files.newBufferedReader(Paths.get("tasks.txt"))) {
             String line = br.readLine();
-            if(line!=null) {
+            if (line != null) {
                 String[] IDListAsString = line.split(" ");
                 for (String id : IDListAsString) {
                     if (!id.equals(""))
                         this.usedIDList.add(id);
                 }
             }
-
-            while(line!=null){
+            while (line != null) {
                 String[] parts = line.split(" ");
                 String user = parts[1];
                 if (taskMap.containsKey(user)) {
@@ -134,6 +132,6 @@ public class ToDoApp implements RequestHandler {
                     taskMap.put(user, newMap);
                 }
             }
-        }
+        }*/
     }
 }

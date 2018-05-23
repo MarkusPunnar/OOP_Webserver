@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LoginHandler implements RequestHandler {
 
-    private Map<String, String> currentRegisteredUsers;
+    private AuthUsersUtil registeredUsersInfo;
 
     @Mapping(URI = "/todoapp/login", method = "POST")
     public Response handle(Request request) throws Exception {
@@ -22,7 +22,7 @@ public class LoginHandler implements RequestHandler {
         }
         String insertedUsername = dataMap.get("username");
         String insertedPassword = dataMap.get("password");
-        if (currentRegisteredUsers.containsKey(insertedUsername) && BCrypt.checkpw(insertedPassword, currentRegisteredUsers.get(insertedUsername))) {
+        if (registeredUsersInfo.checkUser(insertedUsername, insertedPassword)) {
             String loginToken = BCrypt.gensalt(30);
             request.getAttributes().put("loginToken", loginToken);
             request.getAttributes().put("user", insertedUsername);
@@ -41,16 +41,17 @@ public class LoginHandler implements RequestHandler {
     }
 
     public void initialize(ServerConfig sc) throws Exception {
+        Map<String, String> currentRegisteredUsers;
         if (System.getProperty("todo.passwords") == null) {
             System.out.println("Password file not configured. Only default user accessible.");
             System.out.println("Username: admin");
             System.out.println("Password: admin");
             System.out.println("To configure passwords file, set System property \"todo.passwords=filePath\"");
-            this.currentRegisteredUsers = Map.of("admin", BCrypt.hashpw("admin", BCrypt.gensalt()));
+            currentRegisteredUsers = Map.of("admin", BCrypt.hashpw("admin", BCrypt.gensalt()));
         } else {
-            this.currentRegisteredUsers = AuthenticationUtil.readHashedPasswordsToMap(Paths.get(System.getProperty("todo.passwords")));
+            currentRegisteredUsers = AuthenticationUtil.readHashedPasswordsToMap(Paths.get(System.getProperty("todo.passwords")));
         }
-        AuthUserInfo info = new AuthUserInfo(currentRegisteredUsers);
-        sc.getAttributes().put("user", info);
+        this.registeredUsersInfo = new AuthUsersUtil(currentRegisteredUsers);
+        sc.getAttributes().put("user", registeredUsersInfo);
     }
 }
