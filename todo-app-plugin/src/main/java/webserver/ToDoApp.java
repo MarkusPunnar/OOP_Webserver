@@ -2,28 +2,41 @@ package webserver;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class ToDoApp implements RequestHandler {
 
     private final Map<String, Map<Integer, String>> taskMap = new HashMap<>();
-    private int taskCounter = 0;
+    private final List<String> usedIDList = new ArrayList<>();
 
     @Mapping(URI = "/todoapp/form", method = "POST")
-    synchronized public Response handle(Request request) throws UnsupportedEncodingException {
+    synchronized public Response handle(Request request) throws IOException {
         String user = request.getAttributes().get("authorized-user");
         Map<String, String> responseHeaders = new HashMap<>();
         String task = request.bodyToForm().get("user_message");
+
+        int taskCounter = 0;
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            if (!usedIDList.contains(String.valueOf(i))) {
+                taskCounter = i;
+                usedIDList.add(String.valueOf(i));
+                break;
+            }
+        }
+
         if (task != null) {
-            if(taskMap.containsKey(user)) {
+            if (taskMap.containsKey(user)) {
                 Map<Integer, String> oldMap = taskMap.get(user);
                 oldMap.put(taskCounter, task);
-            }
-            else{
+            } else {
                 Map<Integer, String> newMap = new HashMap<>();
                 newMap.put(taskCounter, task);
                 taskMap.put(user, newMap);
             }
+            addToFile(taskCounter + " " + user + " " + task);
             taskCounter++;
         }
         responseHeaders.put("Location", "/todoapp/form");
@@ -41,7 +54,7 @@ public class ToDoApp implements RequestHandler {
         String user = request.getAttributes().get("authorized-user");
         Map<Integer, String> map;
 
-        if(taskMap.containsKey(user))
+        if (taskMap.containsKey(user))
             map = taskMap.get(user);
         else {
             map = new HashMap<>();
@@ -53,6 +66,7 @@ public class ToDoApp implements RequestHandler {
                     "<form action=\"/todoapp/delete/" + taskID + "\" method=\"post\">\n" +
                     "<button type=\"submit\">Done</button>\n</form></li>";
         }
+
         if (map.size() == 0)
             template = template.replace("$$EXISTING$$", "No tasks");
         String response = template.replace("$$EXISTING$$", existingItems);
@@ -61,17 +75,65 @@ public class ToDoApp implements RequestHandler {
     }
 
     @Mapping(URI = "/todoapp/delete/*", method = "POST")
-    synchronized public Response deleteTask(Request request) {
+    synchronized public Response deleteTask(Request request) throws IOException {
         String uri = request.getRequestURI();
         int id = Integer.parseInt(uri.substring(uri.lastIndexOf("/") + 1));
         String user = request.getAttributes().get("authorized-user");
+        removeFromFile(String.valueOf(id), user);
         taskMap.get(user).remove(id);
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("Location", "/todoapp/form");
         return new Response(StatusCode.FOUND, responseHeaders, null);
     }
 
+    synchronized public void addToFile(String task) throws IOException {
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"))) {
+            bw.write(task);
+        }
+    }
+
+    synchronized public void removeFromFile(String id, String user) throws IOException {
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"), StandardOpenOption.TRUNCATE_EXISTING);
+             BufferedReader br = new BufferedReader(new FileReader(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"))) {
+            String line = br.readLine();
+            String usedIDString = "";
+            for (String usedID : usedIDList) {
+                usedIDString += usedID + " ";
+            }
+            while (line != null) {
+                String[] parts = line.split(" ");
+                if (!parts[0].equals(id) || !parts[1].equals(user)) {
+                    bw.write(line);
+                }
+            }
+        }
+    }
+
     @Override
-    public void initialize(ServerConfig sc) {
+    public void initialize(ServerConfig sc) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(".\\todo-app-plugin\\src\\main\\resources\\tasks.txt"))) {
+
+            String line = br.readLine();
+            if(line!=null) {
+                String[] IDListAsString = line.split(" ");
+                for (String id : IDListAsString) {
+                    if (!id.equals(""))
+                        this.usedIDList.add(id);
+                }
+            }
+
+            while(line!=null){
+                String[] parts = line.split(" ");
+                String user = parts[1];
+                if (taskMap.containsKey(user)) {
+                    Map<Integer, String> oldMap = taskMap.get(user);
+                    oldMap.put(Integer.parseInt(parts[0]), parts[2]);
+                } else {
+                    Map<Integer, String> newMap = new HashMap<>();
+                    newMap.put(Integer.parseInt(parts[0]), parts[2]);
+                    taskMap.put(user, newMap);
+                }
+            }
+        }
     }
 }
