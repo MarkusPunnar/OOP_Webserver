@@ -86,33 +86,43 @@ public class ToDoApp implements RequestHandler {
         return new Response(StatusCode.FOUND, responseHeaders, null);
     }
 
-    private synchronized void addToFile(String task) throws IOException {
-        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("tasks.txt"))) {
-            bw.write(task);
+    synchronized private void addToFile(String task) throws IOException {
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.txt"))) {
+            dos.writeUTF(task);
         }
     }
 
-    private synchronized void removeFromFile(String id, String user) throws IOException {
-        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("tasks.txt"), StandardOpenOption.TRUNCATE_EXISTING);
-             BufferedReader br = Files.newBufferedReader(Paths.get("tasks.txt"))) {
-            String line = br.readLine();
+    synchronized private void removeFromFile(String id, String user) throws IOException {
+
+        List<String> newFile = new ArrayList<>();
+
+        try (DataInputStream dis = new DataInputStream(new FileInputStream("private/tasks.txt"))) {
+            String line = dis.readUTF();
+            while (line != null) {
+                String[] parts = line.split(" ");
+                if (!parts[0].equals(id) || !parts[1].equals(user)) {
+                    newFile.add(line);
+                }
+            }
+        }
+
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.txt"))) {
             String usedIDString = "";
             for (String usedID : usedIDList) {
                 usedIDString += usedID + " ";
             }
-            while (line != null) {
-                String[] parts = line.split(" ");
-                if (!parts[0].equals(id) || !parts[1].equals(user)) {
-                    bw.write(line);
-                }
+            dos.writeUTF(usedIDString);
+            for (String line : newFile) {
+                dos.writeUTF(line);
             }
         }
     }
 
     @Override
     public void initialize(ServerConfig sc) throws IOException {
-        /*try (BufferedReader br = Files.newBufferedReader(Paths.get("tasks.txt"))) {
-            String line = br.readLine();
+        /*try (DataInputStream dis = new DataInputStream(new FileInputStream("private/tasks.txt"))) {
+
+            String line = dis.readUTF();
             if (line != null) {
                 String[] IDListAsString = line.split(" ");
                 for (String id : IDListAsString) {
@@ -120,6 +130,7 @@ public class ToDoApp implements RequestHandler {
                         this.usedIDList.add(id);
                 }
             }
+
             while (line != null) {
                 String[] parts = line.split(" ");
                 String user = parts[1];
