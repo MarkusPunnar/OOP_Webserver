@@ -11,13 +11,8 @@
 
     <modules>
         <module>server</module>
-        <module>forms-plugin</module>
-        <module>current-date-plugin</module>
-        <module>weather-plugin</module>
-        <module>delete-response-plugin</module>
-        <module>post-response-plugin</module>
-        <module>authentication-plugin</module>
-	<module>get-response-plugin</module>
+        <module>server-plugin</module>
+        <module>examples-plugin</module>
         <module>todo-app-plugin</module>
     </modules>
 
