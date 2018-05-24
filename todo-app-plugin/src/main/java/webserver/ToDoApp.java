@@ -117,8 +117,8 @@ public class ToDoApp implements RequestHandler {
             }
         }
         try (DataOutputStream dos = new DataOutputStream(new FileOutputStream("private/tasks.dat"))) {
+            dos.writeInt(counter - 1);
             for (String line : newFile) {
-                dos.writeInt(counter - 1);
                 dos.writeUTF(line);
             }
         }
