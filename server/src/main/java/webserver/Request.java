@@ -26,9 +26,7 @@ public class Request {
                 for (int i = 0; i < parameterValues.length; i++) {
                     parameterValues[i] = URLDecoder.decode(parameterValues[i], "UTF-8");
                 }
-                if (parameterValues.length > 1) {
-                    parameters.put(parameterValues[0], parameterValues[1]);
-                }
+                parameters.put(parameterValues[0], parameterValues[1]);
             }
         }
         this.requestMethod = requestMethod;
