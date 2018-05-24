@@ -17,7 +17,14 @@ public class AuthUsersRegistry {
     }
 
     public boolean checkUser(String username, String password) {
-        boolean passwordCheck = BCrypt.checkpw(password, currentRegisteredUsers.get(username));
+        String hashedPw;
+        synchronized (currentRegisteredUsers) {
+            hashedPw = currentRegisteredUsers.get(username);
+        }
+        if (hashedPw == null) {
+            return false;
+        }
+        boolean passwordCheck = BCrypt.checkpw(password, hashedPw);
         synchronized (currentRegisteredUsers) {
             return currentRegisteredUsers.containsKey(username) && passwordCheck;
         }
